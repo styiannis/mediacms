@@ -2,16 +2,16 @@ import * as api from './api.js';
 import * as media from './media';
 import * as site from './site';
 import * as theme from './theme';
-import * as url from './url.js';
+import * as url from './url';
 import * as member from './member.js';
 import * as contents from './contents.js';
-import * as pages from './pages.js';
+import * as pages from './pages';
 import * as sidebar from './sidebar';
 import * as taxonomies from './taxonomies';
 import * as optionsPages from './optionsPages.js';
-import * as optionsEmbedded from './optionsEmbedded.js';
-import * as playlists from './playlists.js';
-import * as notifications from './notifications.js';
+import * as optionsEmbedded from './optionsEmbedded';
+import * as playlists from './playlists';
+import * as notifications from './notifications';
 
 let DATA = null;
 
