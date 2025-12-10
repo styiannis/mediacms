@@ -1,8 +1,5 @@
-import Dispatcher from '../dispatcher.js';
+import { dispatcher } from '../dispatcher';
 
 export function requestPredictions(query) {
-  Dispatcher.dispatch({
-    type: 'REQUEST_PREDICTIONS',
-    query,
-  });
+    dispatcher.dispatch({ type: 'REQUEST_PREDICTIONS', query });
 }

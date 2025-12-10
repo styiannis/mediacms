@@ -1,22 +1,13 @@
-import Dispatcher from '../dispatcher.js';
+import { dispatcher } from '../dispatcher';
 
 export function initPage(page) {
-  Dispatcher.dispatch({
-    type: 'INIT_PAGE',
-    page,
-  });
+    dispatcher.dispatch({ type: 'INIT_PAGE', page });
 }
 
 export function toggleMediaAutoPlay() {
-  Dispatcher.dispatch({
-    type: 'TOGGLE_AUTO_PLAY',
-  });
+    dispatcher.dispatch({ type: 'TOGGLE_AUTO_PLAY' });
 }
 
 export function addNotification(notification, notificationId) {
-  Dispatcher.dispatch({
-    type: 'ADD_NOTIFICATION',
-    notification,
-    notificationId,
-  });
+    dispatcher.dispatch({ type: 'ADD_NOTIFICATION', notification, notificationId });
 }

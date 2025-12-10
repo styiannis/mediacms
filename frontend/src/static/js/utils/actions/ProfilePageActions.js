@@ -1,13 +1,9 @@
-import Dispatcher from '../dispatcher.js';
+import { dispatcher } from '../dispatcher';
 
 export function load_author_data() {
-  Dispatcher.dispatch({
-    type: 'LOAD_AUTHOR_DATA',
-  });
+    dispatcher.dispatch({ type: 'LOAD_AUTHOR_DATA' });
 }
 
 export function remove_profile() {
-  Dispatcher.dispatch({
-    type: 'REMOVE_PROFILE',
-  });
+    dispatcher.dispatch({ type: 'REMOVE_PROFILE' });
 }
