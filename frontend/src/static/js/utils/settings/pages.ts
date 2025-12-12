@@ -1,11 +1,10 @@
-type PageKey = 'latest' | 'featured' | 'recommended' | 'members' | 'liked' | 'history';
-type PageSettings = { enabled: boolean; title: string };
+import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-export type PagesSettings = Record<PageKey, PageSettings>;
+let PAGES: MediaCMSConfig['enabled']['pages'] | null = null;
 
-let PAGES: PagesSettings | null = null;
-
-export function init(settings?: Partial<Record<PageKey, Partial<PageSettings>>>) {
+export function init(
+    settings?: DeepPartial<GlobalMediaCMS['site']['pages']> & DeepPartial<GlobalMediaCMS['site']['userPages']>
+) {
     PAGES = {
         latest: { enabled: false, title: 'Recent uploads' },
         featured: { enabled: false, title: 'Featured' },
@@ -19,7 +18,7 @@ export function init(settings?: Partial<Record<PageKey, Partial<PageSettings>>>)
     for (let sk in settings) {
         const key = sk as keyof typeof settings;
 
-        if (PAGES[key] === undefined) {
+        if (!PAGES[key]) {
             continue;
         }
 

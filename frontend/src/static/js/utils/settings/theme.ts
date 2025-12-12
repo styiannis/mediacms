@@ -1,23 +1,10 @@
-type ThemeSettings = {
-    mode: 'light' | 'dark';
-    switch: { enabled: boolean; position: 'header' | 'sidebar' };
-    logo: {
-        lightMode: { img: string; svg: string };
-        darkMode: { img: string; svg: string };
-    };
-};
+import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let THEME: ThemeSettings | null = null;
+let THEME: MediaCMSConfig['theme'] | null = null;
 
 export function init(
-    theme?: {
-        mode?: ThemeSettings['mode'];
-        switch?: Partial<ThemeSettings['switch']>;
-    },
-    logo?: {
-        lightMode?: Partial<ThemeSettings['logo']['lightMode']>;
-        darkMode?: Partial<ThemeSettings['logo']['darkMode']>;
-    }
+    theme?: DeepPartial<GlobalMediaCMS['site']['theme']>,
+    logo?: DeepPartial<GlobalMediaCMS['site']['logo']>
 ) {
     THEME = {
         mode: 'light',
@@ -52,11 +39,11 @@ export function init(
         }
 
         if (logo.darkMode) {
-            if (logo.darkMode.img) {
+            if (logo.darkMode?.img) {
                 THEME.logo.darkMode.img = logo.darkMode.img.trim();
             }
 
-            if (logo.darkMode.svg) {
+            if (logo.darkMode?.svg) {
                 THEME.logo.darkMode.svg = logo.darkMode.svg.trim();
             }
         }

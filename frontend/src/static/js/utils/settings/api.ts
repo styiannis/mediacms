@@ -1,34 +1,7 @@
 import urlParse from 'url-parse'; // @todo: It doesn't really need
+import { GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-type EndpointsSettings = {
-    media: string;
-    featured: string;
-    recommended: string;
-    playlists: string;
-    users: string;
-    user: {
-        liked: string;
-        history: string;
-        playlists: string;
-    };
-    archive: {
-        tags: string;
-        categories: string;
-    };
-    manage: {
-        media: string;
-        users: string;
-        comments: string;
-    };
-    search: {
-        query: string;
-        titles: string;
-        tag: string;
-        category: string;
-    };
-};
-
-let ENDPOINTS: EndpointsSettings | null = null;
+let ENDPOINTS: MediaCMSConfig['api'] | null = null;
 
 function formatEndpoints<K extends string = string>(baseUrl: string, endpoints: Record<K, string>) {
     for (let k in endpoints) {
@@ -37,25 +10,8 @@ function formatEndpoints<K extends string = string>(baseUrl: string, endpoints: 
     return endpoints;
 }
 
-export function init(
-    base_url: string,
-    endpoints: {
-        media: string;
-        playlists: string;
-        comments: string;
-        search: string;
-        tags: string;
-        categories: string;
-        members: string;
-        liked: string;
-        history: string;
-        actions: string;
-        manage_media: string;
-        manage_users: string;
-        manage_comments: string;
-    }
-) {
-    const baseUrl = urlParse(base_url).toString().replace(/\/+$/, '');
+export function init(apiUrl: GlobalMediaCMS['site']['api'], endpoints: GlobalMediaCMS['api']) {
+    const baseUrl = urlParse(apiUrl).toString().replace(/\/+$/, '');
 
     ENDPOINTS = {
         ...formatEndpoints(baseUrl, {

@@ -1,45 +1,20 @@
-import { type PagesSettings } from './pages';
+import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-type OptionsPagesSettings = {
-    home: {
-        sections: {
-            latest: { title: string };
-            featured: { title: string };
-            recommended: { title: string };
-        };
-    };
-    search: { advancedFilters: boolean };
-    media: {
-        categoriesWithTitle: boolean;
-        htmlInDescription: boolean;
-        displayViews: boolean;
-        related: { initialSize: number };
-    };
-    profile: {
-        htmlInDescription: boolean;
-        includeHistory: boolean;
-        includeLikedMedia: boolean;
-    };
-};
-
-let PAGES: OptionsPagesSettings | null = null;
+let PAGES: MediaCMSConfig['options']['pages'] | null = null;
 
 export function init(
-    home?: { sections?: Partial<OptionsPagesSettings['home']['sections']> },
-    search?: Partial<OptionsPagesSettings['search']>,
-    media?: Partial<Omit<OptionsPagesSettings['media'], 'displayViews' | 'related'>> & {
-        hideViews?: boolean;
-        related?: { initialSize?: number };
-    },
-    profile?: Partial<OptionsPagesSettings['profile']>,
-    VALID_PAGES?: PagesSettings
+    home?: DeepPartial<GlobalMediaCMS['pages']['home']>,
+    search?: DeepPartial<GlobalMediaCMS['pages']['search']>,
+    media?: DeepPartial<GlobalMediaCMS['pages']['media']>,
+    profile?: DeepPartial<GlobalMediaCMS['pages']['profile']>,
+    VALID_PAGES?: MediaCMSConfig['enabled']['pages']
 ) {
     PAGES = {
         home: {
             sections: {
-                latest: { title: VALID_PAGES?.latest.title || 'Latest' },
-                featured: { title: VALID_PAGES?.featured.title || 'Featured' },
-                recommended: { title: VALID_PAGES?.recommended.title || 'Recommended' },
+                latest: { title: VALID_PAGES?.latest?.title || 'Latest' },
+                featured: { title: VALID_PAGES?.featured?.title || 'Featured' },
+                recommended: { title: VALID_PAGES?.recommended?.title || 'Recommended' },
             },
         },
         search: {

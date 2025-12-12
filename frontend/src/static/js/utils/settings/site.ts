@@ -1,15 +1,8 @@
-type SiteSettings = {
-    id: string;
-    url: string;
-    api: string;
-    title: string;
-    useRoundedCorners: boolean;
-    version: string;
-};
+import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let SITE: SiteSettings | null = null;
+let SITE: MediaCMSConfig['site'] | null = null;
 
-export function init(settings?: Partial<SiteSettings>) {
+export function init(settings?: DeepPartial<GlobalMediaCMS['site']>) {
     SITE = {
         id: settings?.id?.trim() ?? 'media-cms',
         url: settings?.url?.trim() ?? '',

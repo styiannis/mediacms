@@ -1,10 +1,8 @@
-type TaxonomyKey = 'tags' | 'categories';
-type TaxonomySettings = { enabled: boolean; title: string };
-type TaxonomiesSettings = Record<TaxonomyKey, TaxonomySettings>;
+import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let TAXONOMIES: TaxonomiesSettings | null = null;
+let TAXONOMIES: MediaCMSConfig['enabled']['taxonomies'] | null = null;
 
-export function init(settings?: Partial<Record<TaxonomyKey, Partial<TaxonomySettings>>>) {
+export function init(settings?: DeepPartial<GlobalMediaCMS['site']['taxonomies']>) {
     TAXONOMIES = {
         tags: { enabled: false, title: 'Tags' },
         categories: { enabled: false, title: 'Categories' },
@@ -13,7 +11,7 @@ export function init(settings?: Partial<Record<TaxonomyKey, Partial<TaxonomySett
     for (let sk in settings) {
         const key = sk as keyof typeof settings;
 
-        if (TAXONOMIES[key] === undefined) {
+        if (!TAXONOMIES[key]) {
             continue;
         }
 

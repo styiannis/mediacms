@@ -85,7 +85,6 @@ export function config(glbl) {
     optionsEmbedded.init(glbl.features.embeddedVideo);
     media.init(glbl.features.mediaItem, glbl.features.media.shareOptions);
     playlists.init(glbl.features.playlists);
-
     notifications.init(glbl.contents.notifications);
 
     DATA = {
