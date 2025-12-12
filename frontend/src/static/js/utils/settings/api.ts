@@ -1,4 +1,4 @@
-import urlParse from 'url-parse'; // @todo: It doesn't really need
+import urlParse from 'url-parse'; // @todo: It's not necessary, 'URL.parse(...)' is sufficient
 import { GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
 function formatEndpoints<K extends string = string>(baseUrl: string, endpoints: Record<K, string>) {
