@@ -1,6 +1,7 @@
 type PageKey = 'latest' | 'featured' | 'recommended' | 'members' | 'liked' | 'history';
 type PageSettings = { enabled: boolean; title: string };
-type PagesSettings = Record<PageKey, PageSettings>;
+
+export type PagesSettings = Record<PageKey, PageSettings>;
 
 let PAGES: PagesSettings | null = null;
 

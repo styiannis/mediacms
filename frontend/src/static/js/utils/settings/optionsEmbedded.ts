@@ -1,4 +1,4 @@
-type EmbeddedSettings = {
+type OptionsEmbeddedSettings = {
     video: {
         dimensions: {
             width: number;
@@ -9,9 +9,9 @@ type EmbeddedSettings = {
     };
 };
 
-let EMBEDDED: EmbeddedSettings | null = null;
+let EMBEDDED: OptionsEmbeddedSettings | null = null;
 
-export function init(settings?: { initialDimensions?: Partial<EmbeddedSettings['video']['dimensions']> }) {
+export function init(settings?: { initialDimensions?: Partial<OptionsEmbeddedSettings['video']['dimensions']> }) {
     EMBEDDED = {
         video: {
             dimensions: { width: 560, widthUnit: 'px', height: 315, heightUnit: 'px' },
