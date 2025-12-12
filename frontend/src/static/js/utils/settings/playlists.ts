@@ -1,10 +1,8 @@
-type PlaylistsSettings = {
-    mediaTypes: ('audio' | 'video')[];
-};
+import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let PLAYLISTS: PlaylistsSettings | null = null;
+let PLAYLISTS: MediaCMSConfig['playlists'] | null = null;
 
-export function init(settings?: Partial<PlaylistsSettings>) {
+export function init(settings?: DeepPartial<GlobalMediaCMS['features']['playlists']>) {
     PLAYLISTS = { mediaTypes: [] };
 
     if (Array.isArray(settings?.mediaTypes)) {

@@ -1,15 +1,8 @@
-type NotificationsSettings = {
-    messages: {
-        addToLiked: string;
-        removeFromLiked: string;
-        addToDisliked: string;
-        removeFromDisliked: string;
-    };
-};
+import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let NOTIFICATIONS: NotificationsSettings | null = null;
+let NOTIFICATIONS: MediaCMSConfig['notifications'] | null = null;
 
-export function init(settings?: { messages?: Partial<NotificationsSettings['messages']> }) {
+export function init(settings?: DeepPartial<GlobalMediaCMS['contents']['notifications']>) {
     NOTIFICATIONS = {
         messages: {
             addToLiked: 'Added to liked media',

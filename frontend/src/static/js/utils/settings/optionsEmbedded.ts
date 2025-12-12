@@ -1,20 +1,16 @@
-type OptionsEmbeddedSettings = {
-    video: {
-        dimensions: {
-            width: number;
-            widthUnit: 'px' | 'percent';
-            height: number;
-            heightUnit: 'px' | 'percent';
-        };
-    };
-};
+import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let EMBEDDED: OptionsEmbeddedSettings | null = null;
+let EMBEDDED: MediaCMSConfig['options']['embedded'] | null = null;
 
-export function init(settings?: { initialDimensions?: Partial<OptionsEmbeddedSettings['video']['dimensions']> }) {
+export function init(settings?: DeepPartial<GlobalMediaCMS['features']['embeddedVideo']>) {
     EMBEDDED = {
         video: {
-            dimensions: { width: 560, widthUnit: 'px', height: 315, heightUnit: 'px' },
+            dimensions: {
+                width: 560,
+                widthUnit: 'px',
+                height: 315,
+                heightUnit: 'px',
+            },
         },
     };
 
@@ -22,7 +18,12 @@ export function init(settings?: { initialDimensions?: Partial<OptionsEmbeddedSet
         return;
     }
 
-    const { height, heightUnit, width, widthUnit } = settings.initialDimensions;
+    const {
+        height,
+        width,
+        // heightUnit,  // @note: It doesn't used
+        // widthUnit    // @note: It doesn't used
+    } = settings.initialDimensions;
 
     if ('number' === typeof width && !Number.isNaN(width)) {
         EMBEDDED.video.dimensions.width = width;
@@ -32,13 +33,15 @@ export function init(settings?: { initialDimensions?: Partial<OptionsEmbeddedSet
         EMBEDDED.video.dimensions.height = height;
     }
 
-    if (widthUnit?.trim() === 'percent') {
-        settings.initialDimensions.widthUnit = 'percent';
-    }
+    // @note: It doesn't used
+    // if (widthUnit?.trim() === 'percent') {
+    //     settings.initialDimensions.widthUnit = 'percent';
+    // }
 
-    if (heightUnit?.trim() === 'percent') {
-        settings.initialDimensions.heightUnit = 'percent';
-    }
+    // @note: It doesn't used
+    // if (heightUnit?.trim() === 'percent') {
+    //     settings.initialDimensions.heightUnit = 'percent';
+    // }
 }
 
 export function settings() {

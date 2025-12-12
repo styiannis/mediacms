@@ -1,17 +1,10 @@
-type MediaSettings = {
-    item: {
-        displayAuthor: boolean;
-        displayViews: boolean;
-        displayPublishDate: boolean;
-    };
-    share: { options: string[] };
-};
+import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let MEDIA: MediaSettings | null = null;
+let MEDIA: MediaCMSConfig['media'] | null = null;
 
 export function init(
-    item?: { hideAuthor?: boolean; hideViews?: boolean; hideDate?: boolean },
-    shareOptions?: string[]
+    item?: DeepPartial<GlobalMediaCMS['features']['mediaItem']>,
+    shareOptions?: DeepPartial<GlobalMediaCMS['features']['media']['shareOptions']>
 ) {
     MEDIA = {
         item: {
@@ -26,7 +19,12 @@ export function init(
         const validShareOptions = ['embed', 'email']; // @todo: Check this
 
         for (const option of shareOptions) {
+            if (!option) {
+                continue;
+            }
+
             const opt = option.trim();
+
             if (validShareOptions.includes(opt)) {
                 MEDIA.share.options.push(opt);
             }

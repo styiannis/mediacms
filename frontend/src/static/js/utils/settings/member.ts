@@ -133,7 +133,7 @@ export function init(
             actions?: Partial<FeaturesConfig['media']['actions']>;
             // shareOptions?: FeaturesConfig['media']['shareOptions'];
         };
-        // mediaItem?: Partial<FeaturesConfig['mediaItem']>;s
+        // mediaItem?: Partial<FeaturesConfig['mediaItem']>;
         // playlists?: Partial<FeaturesConfig['playlists']>;
     }
 ) {

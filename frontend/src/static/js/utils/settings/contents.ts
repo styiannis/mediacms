@@ -1,39 +1,14 @@
-type ContentsSettings = {
-    header: {
-        right: string;
-        onLogoRight: string;
-    };
-    sidebar: {
-        belowNavMenu: string;
-        belowThemeSwitcher: string;
-        footer: string;
-        mainMenuExtra: { items: { text: string; link: string; icon: string; className?: string }[] };
-        navMenu: { items: { text: string; link: string; icon: string; className?: string }[] };
-    };
-    uploader: {
-        belowUploadArea: string;
-        postUploadMessage: string;
-    };
-};
+import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let CONTENTS: ContentsSettings | null = null;
+let CONTENTS: MediaCMSConfig['contents'] | null = null;
 
-function headerContents(settings?: Partial<ContentsSettings['header']>) {
-    const header: ContentsSettings['header'] = {
-        right: settings?.right !== undefined ? settings.right.trim() : '',
-        onLogoRight: settings?.onLogoRight !== undefined ? settings.onLogoRight.trim() : '',
-    };
-    return header;
-}
+const headerContents = (settings?: DeepPartial<GlobalMediaCMS['contents']['header']>) => ({
+    right: settings?.right !== undefined ? settings.right.trim() : '',
+    onLogoRight: settings?.onLogoRight !== undefined ? settings.onLogoRight.trim() : '',
+});
 
-function sidebarContents(settings?: {
-    belowNavMenu?: ContentsSettings['sidebar']['belowNavMenu'];
-    belowThemeSwitcher?: ContentsSettings['sidebar']['belowThemeSwitcher'];
-    footer?: ContentsSettings['sidebar']['footer'];
-    mainMenuExtraItems?: ContentsSettings['sidebar']['mainMenuExtra']['items'];
-    navMenuItems?: ContentsSettings['sidebar']['navMenu']['items'];
-}) {
-    const sidebar: ContentsSettings['sidebar'] = {
+function sidebarContents(settings?: DeepPartial<GlobalMediaCMS['contents']['sidebar']>) {
+    const sidebar: MediaCMSConfig['contents']['sidebar'] = {
         belowNavMenu: settings?.belowNavMenu ? settings.belowNavMenu.trim() : '',
         belowThemeSwitcher: settings?.belowThemeSwitcher ? settings.belowThemeSwitcher.trim() : '',
         footer: settings?.footer ? settings.footer.trim() : '',
@@ -43,6 +18,10 @@ function sidebarContents(settings?: {
 
     if (settings?.mainMenuExtraItems) {
         for (const item of settings.mainMenuExtraItems) {
+            if (!item) {
+                continue;
+            }
+
             const text = item.text ? item.text.trim() : '';
             const link = item.link ? item.link.trim() : '';
             const icon = item.icon ? item.icon.trim() : '';
@@ -57,6 +36,10 @@ function sidebarContents(settings?: {
 
     if (settings?.navMenuItems) {
         for (const item of settings.navMenuItems) {
+            if (!item) {
+                continue;
+            }
+
             const text = item.text ? item.text.trim() : '';
             const link = item.link ? item.link.trim() : '';
             const icon = item.icon ? item.icon.trim() : '';
@@ -72,19 +55,12 @@ function sidebarContents(settings?: {
     return sidebar;
 }
 
-function uploaderContents(settings?: Partial<ContentsSettings['uploader']>) {
-    const uploader: ContentsSettings['uploader'] = {
-        belowUploadArea: settings?.belowUploadArea ? settings?.belowUploadArea.trim() : '',
-        postUploadMessage: settings?.postUploadMessage ? settings?.postUploadMessage.trim() : '',
-    };
-    return uploader;
-}
+const uploaderContents = (settings?: DeepPartial<GlobalMediaCMS['contents']['uploader']>) => ({
+    belowUploadArea: settings?.belowUploadArea ? settings?.belowUploadArea.trim() : '',
+    postUploadMessage: settings?.postUploadMessage ? settings?.postUploadMessage.trim() : '',
+});
 
-export function init(settings?: {
-    header: Partial<ContentsSettings['header']>;
-    sidebar: Partial<ContentsSettings['sidebar']>;
-    uploader: Partial<ContentsSettings['uploader']>;
-}) {
+export function init(settings?: DeepPartial<Omit<GlobalMediaCMS['contents'], 'notifications'>>) {
     CONTENTS = {
         header: headerContents(settings?.header),
         sidebar: sidebarContents(settings?.sidebar),

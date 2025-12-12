@@ -1,12 +1,8 @@
-type SidebarSettings = {
-    hideHomeLink: boolean;
-    hideTagsLink: boolean;
-    hideCategoriesLink: boolean;
-};
+import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let SIDEBAR: SidebarSettings | null = null;
+let SIDEBAR: MediaCMSConfig['sidebar'] | null = null;
 
-export function init(settings?: Partial<SidebarSettings>) {
+export function init(settings?: DeepPartial<GlobalMediaCMS['features']['sideBar']>) {
     SIDEBAR = {
         hideHomeLink: settings?.hideHomeLink === true,
         hideTagsLink: settings?.hideTagsLink === true,
