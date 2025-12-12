@@ -1,7 +1,5 @@
 import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let CONTENTS: MediaCMSConfig['contents'] | null = null;
-
 const headerContents = (settings?: DeepPartial<GlobalMediaCMS['contents']['header']>) => ({
     right: settings?.right !== undefined ? settings.right.trim() : '',
     onLogoRight: settings?.onLogoRight !== undefined ? settings.onLogoRight.trim() : '',
@@ -60,14 +58,10 @@ const uploaderContents = (settings?: DeepPartial<GlobalMediaCMS['contents']['upl
     postUploadMessage: settings?.postUploadMessage ? settings?.postUploadMessage.trim() : '',
 });
 
-export function init(settings?: DeepPartial<Omit<GlobalMediaCMS['contents'], 'notifications'>>) {
-    CONTENTS = {
-        header: headerContents(settings?.header),
-        sidebar: sidebarContents(settings?.sidebar),
-        uploader: uploaderContents(settings?.uploader),
-    };
-}
-
-export function settings() {
-    return CONTENTS;
-}
+export const contentsConfig = (
+    settings?: DeepPartial<Omit<GlobalMediaCMS['contents'], 'notifications'>>
+): MediaCMSConfig['contents'] => ({
+    header: headerContents(settings?.header),
+    sidebar: sidebarContents(settings?.sidebar),
+    uploader: uploaderContents(settings?.uploader),
+});

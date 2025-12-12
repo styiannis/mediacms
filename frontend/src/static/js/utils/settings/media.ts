@@ -1,12 +1,10 @@
 import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let MEDIA: MediaCMSConfig['media'] | null = null;
-
-export function init(
+export function mediaConfig(
     item?: DeepPartial<GlobalMediaCMS['features']['mediaItem']>,
     shareOptions?: DeepPartial<GlobalMediaCMS['features']['media']['shareOptions']>
 ) {
-    MEDIA = {
+    const ret: MediaCMSConfig['media'] = {
         item: {
             displayAuthor: item?.hideAuthor === true ? false : true,
             displayViews: item?.hideViews === true ? false : true,
@@ -26,12 +24,10 @@ export function init(
             const opt = option.trim();
 
             if (validShareOptions.includes(opt)) {
-                MEDIA.share.options.push(opt);
+                ret.share.options.push(opt);
             }
         }
     }
-}
 
-export function settings() {
-    return MEDIA;
+    return ret;
 }

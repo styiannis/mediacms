@@ -1,15 +1,13 @@
 import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let PAGES: MediaCMSConfig['options']['pages'] | null = null;
-
-export function init(
+export function optionsPagesConfig(
     home?: DeepPartial<GlobalMediaCMS['pages']['home']>,
     search?: DeepPartial<GlobalMediaCMS['pages']['search']>,
     media?: DeepPartial<GlobalMediaCMS['pages']['media']>,
     profile?: DeepPartial<GlobalMediaCMS['pages']['profile']>,
     VALID_PAGES?: MediaCMSConfig['enabled']['pages']
 ) {
-    PAGES = {
+    const ret: MediaCMSConfig['options']['pages'] = {
         home: {
             sections: {
                 latest: { title: VALID_PAGES?.latest?.title || 'Latest' },
@@ -40,19 +38,17 @@ export function init(
 
     if (home?.sections) {
         if (home.sections.latest?.title) {
-            PAGES.home.sections.latest.title = home.sections.latest.title.trim();
+            ret.home.sections.latest.title = home.sections.latest.title.trim();
         }
 
         if (home.sections.featured?.title) {
-            PAGES.home.sections.featured.title = home.sections.featured.title.trim();
+            ret.home.sections.featured.title = home.sections.featured.title.trim();
         }
 
         if (home.sections.recommended?.title) {
-            PAGES.home.sections.recommended.title = home.sections.recommended.title.trim();
+            ret.home.sections.recommended.title = home.sections.recommended.title.trim();
         }
     }
-}
 
-export function settings() {
-    return PAGES;
+    return ret;
 }

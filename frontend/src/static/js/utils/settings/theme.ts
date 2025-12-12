@@ -1,12 +1,10 @@
 import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let THEME: MediaCMSConfig['theme'] | null = null;
-
-export function init(
+export function themeConfig(
     theme?: DeepPartial<GlobalMediaCMS['site']['theme']>,
     logo?: DeepPartial<GlobalMediaCMS['site']['logo']>
 ) {
-    THEME = {
+    const ret: MediaCMSConfig['theme'] = {
         mode: 'light',
         switch: { enabled: true, position: 'header' },
         logo: { lightMode: { img: '', svg: '' }, darkMode: { img: '', svg: '' } },
@@ -14,15 +12,15 @@ export function init(
 
     if (theme) {
         if (theme.mode?.trim() === 'dark') {
-            THEME.mode = 'dark';
+            ret.mode = 'dark';
         }
 
         if (theme.switch) {
             if (theme.switch.enabled === false) {
-                THEME.switch.enabled = false;
+                ret.switch.enabled = false;
             }
             if (theme.switch.position?.trim() === 'sidebar') {
-                THEME.switch.position = 'sidebar';
+                ret.switch.position = 'sidebar';
             }
         }
     }
@@ -30,26 +28,24 @@ export function init(
     if (logo) {
         if (logo.lightMode) {
             if (logo.lightMode.img) {
-                THEME.logo.lightMode.img = logo.lightMode.img.trim();
+                ret.logo.lightMode.img = logo.lightMode.img.trim();
             }
 
             if (logo.lightMode.svg) {
-                THEME.logo.lightMode.svg = logo.lightMode.svg.trim();
+                ret.logo.lightMode.svg = logo.lightMode.svg.trim();
             }
         }
 
         if (logo.darkMode) {
             if (logo.darkMode?.img) {
-                THEME.logo.darkMode.img = logo.darkMode.img.trim();
+                ret.logo.darkMode.img = logo.darkMode.img.trim();
             }
 
             if (logo.darkMode?.svg) {
-                THEME.logo.darkMode.svg = logo.darkMode.svg.trim();
+                ret.logo.darkMode.svg = logo.darkMode.svg.trim();
             }
         }
     }
-}
 
-export function settings() {
-    return THEME;
+    return ret;
 }

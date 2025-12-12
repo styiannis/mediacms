@@ -1,9 +1,7 @@
 import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let NOTIFICATIONS: MediaCMSConfig['notifications'] | null = null;
-
-export function init(settings?: DeepPartial<GlobalMediaCMS['contents']['notifications']>) {
-    NOTIFICATIONS = {
+export function notificationsConfig(settings?: DeepPartial<GlobalMediaCMS['contents']['notifications']>) {
+    const ret: MediaCMSConfig['notifications'] = {
         messages: {
             addToLiked: 'Added to liked media',
             removeFromLiked: 'Removed from liked media',
@@ -13,7 +11,7 @@ export function init(settings?: DeepPartial<GlobalMediaCMS['contents']['notifica
     };
 
     if (!settings?.messages) {
-        return;
+        return ret;
     }
 
     const entries = Object.entries(settings.messages) as [keyof typeof settings.messages, string][];
@@ -21,11 +19,9 @@ export function init(settings?: DeepPartial<GlobalMediaCMS['contents']['notifica
     for (const [key, value] of entries) {
         const message = value?.trim();
         if (message) {
-            NOTIFICATIONS.messages[key] = message;
+            ret.messages[key] = message;
         }
     }
-}
 
-export function settings() {
-    return NOTIFICATIONS;
+    return ret;
 }

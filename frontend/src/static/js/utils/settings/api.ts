@@ -1,8 +1,6 @@
 import urlParse from 'url-parse'; // @todo: It doesn't really need
 import { GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let ENDPOINTS: MediaCMSConfig['api'] | null = null;
-
 function formatEndpoints<K extends string = string>(baseUrl: string, endpoints: Record<K, string>) {
     for (let k in endpoints) {
         endpoints[k] = baseUrl + '/' + endpoints[k].replace(/^\//g, '');
@@ -10,10 +8,12 @@ function formatEndpoints<K extends string = string>(baseUrl: string, endpoints: 
     return endpoints;
 }
 
-export function init(apiUrl: GlobalMediaCMS['site']['api'], endpoints: GlobalMediaCMS['api']) {
+export function apiConfig(
+    apiUrl: GlobalMediaCMS['site']['api'],
+    endpoints: GlobalMediaCMS['api']
+): MediaCMSConfig['api'] {
     const baseUrl = urlParse(apiUrl).toString().replace(/\/+$/, '');
-
-    ENDPOINTS = {
+    return {
         ...formatEndpoints(baseUrl, {
             media: endpoints.media,
             featured: endpoints.media + '?show=featured',
@@ -42,8 +42,4 @@ export function init(apiUrl: GlobalMediaCMS['site']['api'], endpoints: GlobalMed
             category: endpoints.search + '?c=',
         }),
     };
-}
-
-export function endpoints() {
-    return ENDPOINTS;
 }

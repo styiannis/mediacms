@@ -1,23 +1,19 @@
 import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let PLAYLISTS: MediaCMSConfig['playlists'] | null = null;
-
-export function init(settings?: DeepPartial<GlobalMediaCMS['features']['playlists']>) {
-    PLAYLISTS = { mediaTypes: [] };
+export function playlistsConfig(settings?: DeepPartial<GlobalMediaCMS['features']['playlists']>) {
+    const ret: MediaCMSConfig['playlists'] = { mediaTypes: [] };
 
     if (Array.isArray(settings?.mediaTypes)) {
         for (const mtype of settings.mediaTypes) {
             if (mtype === 'audio' || mtype === 'video') {
-                PLAYLISTS.mediaTypes.push(mtype);
+                ret.mediaTypes.push(mtype);
             }
         }
     }
 
-    if (PLAYLISTS.mediaTypes.length === 0) {
-        PLAYLISTS.mediaTypes = ['audio', 'video'];
+    if (ret.mediaTypes.length === 0) {
+        ret.mediaTypes = ['audio', 'video'];
     }
-}
 
-export function settings() {
-    return PLAYLISTS;
+    return ret;
 }

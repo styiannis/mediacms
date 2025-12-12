@@ -1,9 +1,7 @@
 import { DeepPartial, GlobalMediaCMS, MediaCMSConfig } from '../../types';
 
-let EMBEDDED: MediaCMSConfig['options']['embedded'] | null = null;
-
-export function init(settings?: DeepPartial<GlobalMediaCMS['features']['embeddedVideo']>) {
-    EMBEDDED = {
+export function optionsEmbeddedConfig(settings?: DeepPartial<GlobalMediaCMS['features']['embeddedVideo']>) {
+    const ret: MediaCMSConfig['options']['embedded'] = {
         video: {
             dimensions: {
                 width: 560,
@@ -15,7 +13,7 @@ export function init(settings?: DeepPartial<GlobalMediaCMS['features']['embedded
     };
 
     if (!settings?.initialDimensions) {
-        return;
+        return ret;
     }
 
     const {
@@ -26,11 +24,11 @@ export function init(settings?: DeepPartial<GlobalMediaCMS['features']['embedded
     } = settings.initialDimensions;
 
     if ('number' === typeof width && !Number.isNaN(width)) {
-        EMBEDDED.video.dimensions.width = width;
+        ret.video.dimensions.width = width;
     }
 
     if ('number' === typeof height && !Number.isNaN(height)) {
-        EMBEDDED.video.dimensions.height = height;
+        ret.video.dimensions.height = height;
     }
 
     // @note: It doesn't used
@@ -42,8 +40,6 @@ export function init(settings?: DeepPartial<GlobalMediaCMS['features']['embedded
     // if (heightUnit?.trim() === 'percent') {
     //     settings.initialDimensions.heightUnit = 'percent';
     // }
-}
 
-export function settings() {
-    return EMBEDDED;
+    return ret;
 }
