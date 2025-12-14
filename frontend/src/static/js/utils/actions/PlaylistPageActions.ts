@@ -8,7 +8,7 @@ export function toggleSave() {
     dispatcher.dispatch({ type: 'TOGGLE_SAVE' });
 }
 
-export function updatePlaylist(playlist_data) {
+export function updatePlaylist(playlist_data: { title: string; description: string }) {
     dispatcher.dispatch({ type: 'UPDATE_PLAYLIST', playlist_data });
 }
 
@@ -16,10 +16,12 @@ export function removePlaylist() {
     dispatcher.dispatch({ type: 'REMOVE_PLAYLIST' });
 }
 
-export function removedMediaFromPlaylist(media_id, playlist_id) {
+export function removedMediaFromPlaylist(media_id: string, playlist_id: string) {
     dispatcher.dispatch({ type: 'MEDIA_REMOVED_FROM_PLAYLIST', media_id, playlist_id });
 }
 
-export function reorderedMediaInPlaylist(newMediaData) {
+export function reorderedMediaInPlaylist(
+    newMediaData: { [k: string]: any; thumbnail_url: string; url: string }[] // @todo: Check this again
+) {
     dispatcher.dispatch({ type: 'PLAYLIST_MEDIA_REORDERED', playlist_media: newMediaData });
 }

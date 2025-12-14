@@ -1,4 +1,4 @@
-import React, { createContext } from 'react';
+import { createContext } from 'react';
 import { config as mediacmsConfig } from '../settings/config';
 
 const notifications = mediacmsConfig(window.MediaCMS).notifications.messages;

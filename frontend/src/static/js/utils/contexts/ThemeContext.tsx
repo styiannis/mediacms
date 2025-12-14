@@ -1,12 +1,13 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { BrowserCache } from '../classes/';
-import { addClassname, removeClassname, supportsSvgAsImg } from '../helpers/';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { GlobalMediaCMS } from '../../types';
+import { BrowserCache } from '../classes';
+import { addClassname, removeClassname, supportsSvgAsImg } from '../helpers';
 import { config as mediacmsConfig } from '../settings/config';
 import SiteContext from './SiteContext';
 
 const config = mediacmsConfig(window.MediaCMS);
 
-function initLogo(logo) {
+function initLogo(logo: GlobalMediaCMS['site']['logo']) {
     let light = null;
     let dark = null;
 
@@ -40,16 +41,27 @@ function initLogo(logo) {
     };
 }
 
-function initMode(cachedValue, defaultValue) {
+function initMode(cachedValue: string | undefined, defaultValue: GlobalMediaCMS['site']['theme']['mode']) {
     return 'light' === cachedValue || 'dark' === cachedValue ? cachedValue : defaultValue;
 }
 
-export const ThemeContext = createContext();
+// @todo: Check this again.
+export const ThemeContext = createContext({
+    logo: initLogo(config.theme.logo)[config.theme.mode],
+    currentThemeMode: config.theme.mode,
+    changeThemeMode: () => {},
+    themeModeSwitcher: config.theme.switch,
+});
 
-export const ThemeProvider = ({ children }) => {
+export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const site = useContext(SiteContext);
-    const cache = new BrowserCache('MediaCMS[' + site.id + '][theme]', 86400);
-    const [themeMode, setThemeMode] = useState(initMode(cache.get('mode'), config.theme.mode));
+
+    const cache = BrowserCache('MediaCMS[' + site.id + '][theme]', 86400);
+
+    const [themeMode, setThemeMode] = useState(
+        initMode(cache instanceof Error ? undefined : cache.get('mode'), config.theme.mode)
+    );
+
     const logos = initLogo(config.theme.logo);
     const [logo, setLogo] = useState(logos[themeMode]);
 
@@ -63,7 +75,11 @@ export const ThemeProvider = ({ children }) => {
         } else {
             removeClassname(document.body, 'dark_theme');
         }
-        cache.set('mode', themeMode);
+
+        if (!(cache instanceof Error)) {
+            cache.set('mode', themeMode);
+        }
+
         setLogo(logos[themeMode]);
     }, [themeMode]);
 

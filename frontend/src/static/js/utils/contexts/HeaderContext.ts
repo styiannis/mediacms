@@ -1,6 +1,6 @@
-import React, { createContext } from 'react';
+import { createContext } from 'react';
 import { config as mediacmsConfig } from '../settings/config';
-import { translateString } from '../../utils/helpers/';
+import { translateString } from '../helpers';
 
 const config = mediacmsConfig(window.MediaCMS);
 

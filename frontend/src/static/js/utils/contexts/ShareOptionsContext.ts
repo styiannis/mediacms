@@ -1,4 +1,4 @@
-import React, { createContext } from 'react';
+import { createContext } from 'react';
 import { config as mediacmsConfig } from '../settings/config';
 
 export const ShareOptionsContext = createContext(mediacmsConfig(window.MediaCMS).media.share.options);

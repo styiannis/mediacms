@@ -1,11 +1,19 @@
-import React, { createContext } from 'react';
+import React from 'react';
+import { createContext, ReactNode } from 'react';
 import { config as mediacmsConfig } from '../settings/config';
-
-export const UserContext = createContext();
 
 const member = mediacmsConfig(window.MediaCMS).member;
 
-export const UserProvider = ({ children }) => {
+// @todo: Check this again
+export const UserContext = createContext({
+    isAnonymous: member.is.anonymous,
+    username: member.username,
+    thumbnail: member.thumbnail,
+    userCan: member.can,
+    pages: member.pages,
+});
+
+export function UserProvider({ children }: { children: ReactNode }) {
     const value = {
         isAnonymous: member.is.anonymous,
         username: member.username,
@@ -15,7 +23,7 @@ export const UserProvider = ({ children }) => {
     };
 
     return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
-};
+}
 
 export const UserConsumer = UserContext.Consumer;
 
