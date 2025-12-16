@@ -1,10 +1,10 @@
 import React from 'react';
 import { format } from 'timeago.js';
-import { formatViewsNumber, imageExtension } from '../../../../utils/helpers/';
+import { formatViewsNumber, imageExtension } from '../../../../utils/helpers';
 // import { VideoPlayerByPageLink } from '../../../video-player/VideoPlayerByPageLink';
-import { translateString } from '../../../../utils/helpers/';
+import { translateString } from '../../../../utils/helpers';
 
-export function ItemDescription(props) {
+export function ItemDescription(props: { description: string }) {
     return '' === props.description ? null : (
         <div className="item-description">
             <div>{props.description}</div>
@@ -12,11 +12,11 @@ export function ItemDescription(props) {
     );
 }
 
-export function ItemMain(props) {
+export function ItemMain(props: { children: React.ReactNode }) {
     return <div className="item-main">{props.children}</div>;
 }
 
-export function ItemMainInLink(props) {
+export function ItemMainInLink(props: { children: React.ReactNode; link: string; title: string }) {
     return (
         <ItemMain>
             <a className="item-content-link" href={props.link} title={props.title}>
@@ -26,7 +26,7 @@ export function ItemMainInLink(props) {
     );
 }
 
-export function ItemTitle(props) {
+export function ItemTitle(props: { ariaLabel: string; title: string }) {
     return '' === props.title ? null : (
         <h3>
             <span aria-label={props.ariaLabel}>{props.title}</span>
@@ -34,7 +34,7 @@ export function ItemTitle(props) {
     );
 }
 
-export function ItemTitleLink(props) {
+export function ItemTitleLink(props: { ariaLabel: string; link: string; title: string }) {
     return '' === props.title ? null : (
         <h3>
             <a href={props.link} title={props.title}>
@@ -44,11 +44,11 @@ export function ItemTitleLink(props) {
     );
 }
 
-export function UserItemMemberSince(props) {
+export function UserItemMemberSince(props: { date: string | number | Date }) {
     return <time key="member-since">Member for {format(new Date(props.date)).replace(' ago', '')}</time>;
 }
 
-export function TaxonomyItemMediaCount(props) {
+export function TaxonomyItemMediaCount(props: { count: number }) {
     // Check if listing numbers should be included based on settings
     if (!window.MediaCMS.features.listings.includeNumbers) {
         return null;
@@ -61,7 +61,7 @@ export function TaxonomyItemMediaCount(props) {
     );
 }
 
-export function PlaylistItemMetaDate(props) {
+export function PlaylistItemMetaDate(props: { dateTime: string; text: string }) {
     return (
         <span className="item-meta">
             <span className="playlist-date">
@@ -71,37 +71,37 @@ export function PlaylistItemMetaDate(props) {
     );
 }
 
-export function MediaItemEditLink(props) {
+export function MediaItemEditLink(props: { link: string }) {
     let link = props.link;
 
     if (link && window.MediaCMS.site.devEnv) {
         link = '/edit-media.html';
     }
 
-  return !link ? null : (
-    <a href={link} title={translateString("Edit media")} className="item-edit-icon">
-      <i className="material-icons">edit</i>
-    </a>
-  );
+    return !link ? null : (
+        <a href={link} title={translateString('Edit media')} className="item-edit-icon">
+            <i className="material-icons">edit</i>
+        </a>
+    );
 }
 
-export function MediaItemViewLink(props) {
-  return !props.link ? null : (
-    <a href={props.link} title={translateString("Publish media")} className="item-view-icon">
-      <i className="material-icons">publish</i>
-    </a>
-  );
+export function MediaItemViewLink(props: { link: string }) {
+    return !props.link ? null : (
+        <a href={props.link} title={translateString('Publish media')} className="item-view-icon">
+            <i className="material-icons">publish</i>
+        </a>
+    );
 }
 
-export function MediaItemThumbnailLink(props) {
+export function MediaItemThumbnailLink(props: { link: string; src: string; title: string }) {
     const attr = {
         key: 'item-thumb',
         href: props.link,
         title: props.title,
-        tabIndex: '-1',
+        tabIndex: -1,
         'aria-hidden': true,
         className: 'item-thumb' + (!props.src ? ' no-thumb' : ''),
-        style: !props.src ? null : { backgroundImage: "url('" + props.src + "')" },
+        style: !props.src ? {} : { backgroundImage: "url('" + props.src + "')" },
     };
 
     return (
@@ -115,21 +115,21 @@ export function MediaItemThumbnailLink(props) {
     );
 }
 
-export function UserItemThumbnailLink(props) {
+export function UserItemThumbnailLink(props: { link: string; src: string; title: string }) {
     const attr = {
         key: 'item-thumb',
         href: props.link,
         title: props.title,
-        tabIndex: '-1',
+        tabIndex: -1,
         'aria-hidden': true,
         className: 'item-thumb' + (!props.src ? ' no-thumb' : ''),
-        style: !props.src ? null : { backgroundImage: "url('" + props.src + "')" },
+        style: !props.src ? {} : { backgroundImage: "url('" + props.src + "')" },
     };
 
     return <a {...attr}></a>;
 }
 
-export function MediaItemAuthor(props) {
+export function MediaItemAuthor(props: { name: string }) {
     return '' === props.name ? null : (
         <span className="item-author">
             <span>{props.name}</span>
@@ -137,7 +137,7 @@ export function MediaItemAuthor(props) {
     );
 }
 
-export function MediaItemAuthorLink(props) {
+export function MediaItemAuthorLink(props: { link: string; name: string }) {
     return '' === props.name ? null : (
         <span className="item-author">
             <a href={props.link} title={props.name}>
@@ -147,7 +147,7 @@ export function MediaItemAuthorLink(props) {
     );
 }
 
-export function MediaItemMetaViews(props) {
+export function MediaItemMetaViews(props: { views: number }) {
     return (
         <span className="item-views">
             {formatViewsNumber(props.views) +
@@ -157,7 +157,7 @@ export function MediaItemMetaViews(props) {
     );
 }
 
-export function MediaItemMetaDate(props) {
+export function MediaItemMetaDate(props: { dateTime: string; text: string; time: string }) {
     return (
         <span className="item-date">
             <time dateTime={props.dateTime} content={props.time}>
@@ -167,7 +167,7 @@ export function MediaItemMetaDate(props) {
     );
 }
 
-export function MediaItemDuration(props) {
+export function MediaItemDuration(props: { ariaLabel: string; text: string; time: string }) {
     return (
         <span className="item-duration">
             <span aria-label={props.ariaLabel} content={props.time}>
@@ -177,7 +177,7 @@ export function MediaItemDuration(props) {
     );
 }
 
-export function MediaItemVideoPreviewer(props) {
+export function MediaItemVideoPreviewer(props: { url: string }) {
     if ('' === props.url) {
         return null;
     }
@@ -188,18 +188,24 @@ export function MediaItemVideoPreviewer(props) {
     return <span className="item-img-preview" data-src={src} data-ext={ext}></span>;
 }
 
-export function MediaItemVideoPlayer(props) {
+export function MediaItemVideoPlayer() {
+    // props: { mediaPageLink: ... }
     return (
         <div className="item-player-wrapper">
             <div className="item-player-wrapper-inner">
                 stop component tou VideoPlayerByPageLink
-                {/*  <VideoPlayerByPageLink pageLink={props.mediaPageLink} /> */}
+                {/* <VideoPlayerByPageLink pageLink={props.mediaPageLink} /> */}
             </div>
         </div>
     );
 }
 
-export function MediaItemPlaylistIndex(props) {
+export function MediaItemPlaylistIndex(props: {
+    activeIndex: number;
+    index: number;
+    inPlayback: boolean;
+    media_id: string;
+}) {
     return (
         <div className="item-order-number">
             <div>
