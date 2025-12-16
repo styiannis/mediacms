@@ -14,12 +14,12 @@ export function useItem(props: {
     description: string;
     hasMediaViewer?: boolean;
     hasMediaViewerDescr?: boolean;
-    link?: string;
+    link: string;
     meta_description?: string;
     onMount?: () => void;
     singleLinkContent?: boolean;
     thumbnail: string;
-    title?: string;
+    title: string;
     type?: string;
 }) {
     const [

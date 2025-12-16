@@ -1,4 +1,4 @@
-export function formatViewsNumber(views_number: number, fullNumber: boolean) {
+export function formatViewsNumber(views_number: number, fullNumber?: boolean) {
     function formattedValue(val: number, lim: number, unit: string) {
         return Number((val / lim).toFixed(val < 10 * lim ? 1 : 0)) + unit;
     }

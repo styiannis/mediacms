@@ -1,7 +1,7 @@
 import { logErrorAndReturnError } from './errors';
 import { isPositiveInteger, isPositiveIntegerOrZero } from './math';
 
-// @todo: Remove it, it's not used.
+// @todo: Check this
 export const PositiveIntegerOrZero = (function () {
     return function (obj: Record<string, number>, key: string, comp: string) {
         return obj[key] === undefined || isPositiveIntegerOrZero(obj[key])
@@ -20,7 +20,7 @@ export const PositiveIntegerOrZero = (function () {
     };
 })();
 
-// @todo: Remove it, it's not used.
+// @todo: Check this
 export const PositiveInteger = (function () {
     return function (obj: Record<string, number>, key: string, comp: string) {
         return obj[key] === undefined || isPositiveInteger(obj[key])
