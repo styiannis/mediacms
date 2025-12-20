@@ -1,46 +1,54 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-export async function getRequest(url: string, sync: boolean = false, callback?: Function, errorCallback?: Function) {
+export async function getRequest(
+    url: string,
+    sync: boolean = false,
+    callback?: (response: AxiosResponse<any, any, {}>) => void,
+    errorCallback?: (err: any) => void
+) {
     const requestConfig = {
         timeout: undefined,
         maxContentLength: undefined,
     };
 
     function responseHandler(result: AxiosResponse<any, any, {}>) {
-        if (callback instanceof Function) {
+        if (callback) {
             callback(result);
         }
     }
 
     function errorHandler(reason: any) {
-        if (errorCallback instanceof Function) {
-            let err = reason;
-            if (reason.response === undefined) {
-                err = {
-                    type: 'network',
-                    error: reason,
-                };
-            } else if (reason.response.status !== undefined) {
-                // TODO: Improve this, it's valid only in case of media requests.
-                switch (reason.response.status) {
-                    case 401:
-                        err = {
-                            type: 'private',
-                            error: reason,
-                            message: 'Media is private',
-                        };
-                        break;
-                    case 400:
-                        err = {
-                            type: 'unavailable',
-                            error: reason,
-                            message: 'Media is unavailable',
-                        };
-                        break;
-                }
-            }
-            errorCallback(err);
+        if (!errorCallback) {
+            return;
         }
+
+        let err = reason;
+        if (reason.response === undefined) {
+            err = {
+                type: 'network',
+                error: reason,
+            };
+        } else if (reason.response.status !== undefined) {
+            // @todo: Improve this, it's valid only in case of media requests.
+            switch (reason.response.status) {
+                case 401:
+                    err = {
+                        type: 'private',
+                        error: reason,
+                        message: 'Media is private',
+                    };
+                    break;
+                case 400:
+                    err = {
+                        type: 'unavailable',
+                        error: reason,
+                        message: 'Media is unavailable',
+                    };
+                    break;
+            }
+        }
+
+        errorCallback(err);
     }
 
     if (sync) {
@@ -61,19 +69,19 @@ export async function postRequest(
     postData: any,
     configData?: AxiosRequestConfig<any>,
     sync: boolean = false,
-    callback?: Function,
-    errorCallback?: Function
+    callback?: (response: AxiosResponse<any, any, {}>) => void,
+    errorCallback?: (error: any) => void
 ) {
     postData = postData || {};
 
     function responseHandler(result: AxiosResponse<any, any, {}>) {
-        if (callback instanceof Function) {
+        if (callback) {
             callback(result);
         }
     }
 
     function errorHandler(error: any) {
-        if (errorCallback instanceof Function) {
+        if (errorCallback) {
             errorCallback(error);
         }
     }
@@ -96,19 +104,19 @@ export async function putRequest(
     putData: any,
     configData?: AxiosRequestConfig<any>,
     sync: boolean = false,
-    callback?: Function,
-    errorCallback?: Function
+    callback?: (response: AxiosResponse<any, any, {}>) => void,
+    errorCallback?: (error: any) => void
 ) {
     putData = putData || {};
 
     function responseHandler(result: AxiosResponse<any, any, {}>) {
-        if (callback instanceof Function) {
+        if (callback) {
             callback(result);
         }
     }
 
     function errorHandler(error: any) {
-        if (errorCallback instanceof Function) {
+        if (errorCallback) {
             errorCallback(error);
         }
     }
@@ -130,19 +138,19 @@ export async function deleteRequest(
     url: string,
     configData?: AxiosRequestConfig<any>,
     sync: boolean = false,
-    callback?: Function,
-    errorCallback?: Function
+    callback?: (response: AxiosResponse<any, any, {}>) => void,
+    errorCallback?: (error: any) => void
 ) {
     configData = configData || {};
 
     function responseHandler(result: AxiosResponse<any, any, {}>) {
-        if (callback instanceof Function) {
+        if (callback) {
             callback(result);
         }
     }
 
     function errorHandler(error: any) {
-        if (errorCallback instanceof Function) {
+        if (errorCallback) {
             errorCallback(error);
         }
     }

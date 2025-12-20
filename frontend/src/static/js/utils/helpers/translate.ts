@@ -6,4 +6,6 @@ declare global {
     }
 }
 
-export const translateString = (word: string) => window.TRANSLATION?.[word] ?? word;
+export function translateString(word: string) {
+    return window.TRANSLATION?.[word] ?? word;
+}

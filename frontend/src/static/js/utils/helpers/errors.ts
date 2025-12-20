@@ -1,4 +1,4 @@
-// TODO: Improve or (even better) remove this file.
+// @todo: Improve or (even better) remove this file.
 
 import { error, warn } from './log';
 

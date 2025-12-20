@@ -24,13 +24,23 @@ export function hasClassname(el: HTMLElement, cls: string) {
 }
 
 // @todo: Check this again.
-// @ts-expect-error
-export const cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
-
-export const requestAnimationFrame =
-    // @todo: Check this again.
+export function cancelAnimationFrame() {
     // @ts-expect-error
-    window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+    return window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+}
+
+// @todo: Check this again.
+export function requestAnimationFrame() {
+    return (
+        window.requestAnimationFrame ||
+        // @ts-expect-error
+        window.mozRequestAnimationFrame ||
+        // @ts-expect-error
+        window.webkitRequestAnimationFrame ||
+        // @ts-expect-error
+        window.msRequestAnimationFrame
+    );
+}
 
 export function BrowserEvents() {
     const callbacks = {
