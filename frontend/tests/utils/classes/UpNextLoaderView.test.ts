@@ -46,7 +46,7 @@ describe('UpNextLoaderView', () => {
         expect(v.vjsPlayerElem).toBe(player);
     });
 
-    // @todo: Fix the code and enable this.
+    // @todo: Enable this after fixing the corresponding code.
     /*test('startTimer shows view, registers scroll, and navigates after 10s', () => {
         jest.useFakeTimers();
 
@@ -114,7 +114,7 @@ describe('UpNextLoaderView', () => {
         jest.useRealTimers();
     });
 
-    // @todo: Fix the code and enable this.
+    // @todo: Enable this after fixing the corresponding code.
     /*test('showTimerView shows or starts timer based on flag', () => {
         jest.useFakeTimers();
 

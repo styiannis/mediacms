@@ -1,7 +1,7 @@
 import { MediaDurationInfo } from '../../../src/static/js/utils/classes/MediaDurationInfo';
 
 describe('MediaDurationInfo', () => {
-    // @todo: Fix the code and enable this.
+    // @todo: Enable this after fixing the corresponding code.
     /*test('Constructs without initial seconds and produces empty ariaLabel/toString of 0:00', () => {
         const mdi = new MediaDurationInfo();
         // Without update(), hours/minutes/seconds default to 0 => "0:00"
