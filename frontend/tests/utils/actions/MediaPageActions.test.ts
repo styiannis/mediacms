@@ -112,12 +112,20 @@ describe('MediaPageActions', () => {
 
         it('Should dispatch ADD_MEDIA_TO_PLAYLIST with ids', () => {
             MediaPageActions.addMediaToPlaylist('pl-1', 'm-1');
-            expect(dispatcher.dispatch).toHaveBeenCalledWith({ type: 'ADD_MEDIA_TO_PLAYLIST', playlist_id: 'pl-1', media_id: 'm-1' });
+            expect(dispatcher.dispatch).toHaveBeenCalledWith({
+                type: 'ADD_MEDIA_TO_PLAYLIST',
+                playlist_id: 'pl-1',
+                media_id: 'm-1',
+            });
         });
 
         it('Should dispatch REMOVE_MEDIA_FROM_PLAYLIST with ids', () => {
             MediaPageActions.removeMediaFromPlaylist('pl-1', 'm-1');
-            expect(dispatcher.dispatch).toHaveBeenCalledWith({ type: 'REMOVE_MEDIA_FROM_PLAYLIST', playlist_id: 'pl-1', media_id: 'm-1' });
+            expect(dispatcher.dispatch).toHaveBeenCalledWith({
+                type: 'REMOVE_MEDIA_FROM_PLAYLIST',
+                playlist_id: 'pl-1',
+                media_id: 'm-1',
+            });
         });
 
         it('Should dispatch APPEND_NEW_PLAYLIST with provided playlist data', () => {

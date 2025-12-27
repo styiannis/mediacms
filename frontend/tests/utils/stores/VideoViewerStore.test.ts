@@ -1,139 +1,141 @@
 import { BrowserCache } from '../../../src/static/js/utils/classes/';
-import VideoViewerStoreModule from '../../../src/static/js/utils/stores/VideoViewerStore';
+import store from '../../../src/static/js/utils/stores/VideoViewerStore';
 
-// Mocks for external dependencies
 jest.mock('../../../src/static/js/utils/classes/', () => ({
     BrowserCache: jest.fn().mockImplementation(() => ({
-        get: jest.fn().mockReturnValue(undefined),
+        get: (key: string) => {
+            let result: any = undefined;
+            switch (key) {
+                case 'in-theater-mode':
+                    result = true;
+                    break;
+                case 'player-volume':
+                    result = 0.6;
+                    break;
+                case 'player-sound-muted':
+                    result = false;
+                    break;
+                case 'video-quality':
+                    result = 720;
+                    break;
+                case 'video-playback-speed':
+                    result = 2;
+                    break;
+            }
+            return result;
+        },
         set: jest.fn(),
     })),
 }));
 
-jest.mock('../../../src/static/js/utils/helpers', () => ({
-    exportStore: (instance: any) => instance,
-}));
-
 jest.mock('../../../src/static/js/utils/settings/config', () => ({
-    config: jest.fn().mockImplementation(() => ({
-        site: { id: 'site-id' },
-    })),
+    config: jest.fn(() => jest.requireActual('../../tests-constants').sampleMediaCMSConfig),
 }));
 
-describe('VideoViewerStore', () => {
-    function createStore() {
-        const Store = (VideoViewerStoreModule as any).default || VideoViewerStoreModule;
-        return Store; // exportStore returns instance
-    }
+describe('utils/store', () => {
+    describe('VideoViewerStore', () => {
+        const browserCacheInstance = (BrowserCache as jest.Mock).mock.results[0].value;
+        const browserCacheSetSpy = browserCacheInstance.set;
 
-    // @todo: Enable this after fixing the corresponding code
-    /*test('Initializes state from BrowserCache with defaults when cache empty', () => {
-        const store: any = createStore();
+        const handler = store.actions_handler.bind(store);
 
-        expect(store.get('in-theater-mode')).toBe(false);
-        expect(store.get('player-volume')).toBe(1);
-        expect(store.get('player-sound-muted')).toBe(false);
-        expect(store.get('video-quality')).toBe('Auto');
-        expect(store.get('video-playback-speed')).toBe(false);
-    });*/
+        const onChangedViewerMode = jest.fn();
+        const onChangedPlayerVolume = jest.fn();
+        const onChangedPlayerSoundMuted = jest.fn();
+        const onChangedVideoQuality = jest.fn();
+        const onChangedVideoPlaybackSpeed = jest.fn();
 
-    // @todo: Enable this after fixing the corresponding code
-    /*test('Clamps player volume between 0 and 1 on initialization', () => {
-        // Override first mock instance get to simulate out-of-range value
-        (BrowserCache as jest.Mock).mockImplementationOnce(() => ({
-            get: jest
-                .fn()
-                .mockReturnValueOnce(undefined) // in-theater-mode
-                .mockReturnValueOnce(5) // player-volume -> should clamp to 1
-                .mockReturnValueOnce(undefined) // player-sound-muted
-                .mockReturnValueOnce(undefined) // video-quality
-                .mockReturnValueOnce(undefined), // video-playback-speed
-            set: jest.fn(),
-        }));
+        store.on('changed_viewer_mode', onChangedViewerMode);
+        store.on('changed_player_volume', onChangedPlayerVolume);
+        store.on('changed_player_sound_muted', onChangedPlayerSoundMuted);
+        store.on('changed_video_quality', onChangedVideoQuality);
+        store.on('changed_video_playback_speed', onChangedVideoPlaybackSpeed);
 
-        const store: any = createStore();
-        expect(store.get('player-volume')).toBe(1);
-    });*/
+        test('Validate initial values', () => {
+            expect(store.get('player-volume')).toBe(0.6);
+            expect(store.get('player-sound-muted')).toBe(false);
+            expect(store.get('in-theater-mode')).toBe(true);
+            // @todo: Revisit the key 'video-data'
+            expect(store.get('video-data')).toBe(undefined);
+            expect(store.get('video-quality')).toBe(720);
+            expect(store.get('video-playback-speed')).toBe(2);
+        });
 
-    test('SET_VIEWER_MODE persists to cache and emits changed_viewer_mode', () => {
-        const store = createStore();
+        describe('Trigger and validate actions behavior', () => {
+            test('Action type: "TOGGLE_VIEWER_MODE"', () => {
+                const initialValue = store.get('video-playback-speed');
 
-        const onChange = jest.fn();
-        store.on('changed_viewer_mode', onChange);
+                handler({ type: 'TOGGLE_VIEWER_MODE' });
 
-        const cacheInstance = (BrowserCache as jest.Mock).mock.results[0].value;
-        const setSpy = cacheInstance.set;
+                expect(onChangedViewerMode).toHaveBeenCalledWith();
+                expect(onChangedViewerMode).toHaveBeenCalledTimes(1);
 
-        store.actions_handler({ type: 'SET_VIEWER_MODE', inTheaterMode: true });
+                expect(store.get('in-theater-mode')).toBe(!initialValue);
+                expect(browserCacheSetSpy).toHaveBeenCalledWith('in-theater-mode', !initialValue);
+            });
 
-        expect(onChange).toHaveBeenCalled();
-        expect(store.get('in-theater-mode')).toBe(true);
-        expect(setSpy).toHaveBeenCalledWith('in-theater-mode', true);
-    });
+            test('Action type: "SET_VIEWER_MODE"', () => {
+                const initialValue = store.get('in-theater-mode');
 
-    test('SET_PLAYER_VOLUME updates, persists and emits', () => {
-        const store: any = createStore();
+                handler({ type: 'SET_VIEWER_MODE', inTheaterMode: !initialValue });
 
-        const onChange = jest.fn();
-        store.on('changed_player_volume', onChange);
+                expect(onChangedViewerMode).toHaveBeenCalledWith();
+                expect(onChangedViewerMode).toHaveBeenCalledTimes(2); // The first time called by 'TOGGLE_VIEWER_MODE' action.
 
-        const cacheInstance = (BrowserCache as jest.Mock).mock.results[0].value;
-        const setSpy = cacheInstance.set;
+                expect(store.get('in-theater-mode')).toBe(!initialValue);
+                expect(browserCacheSetSpy).toHaveBeenCalledWith('in-theater-mode', !initialValue);
+            });
 
-        store.actions_handler({ type: 'SET_PLAYER_VOLUME', playerVolume: 0.5 });
+            test('Action type: "SET_PLAYER_VOLUME"', () => {
+                const initialValue = store.get('player-volume');
 
-        expect(onChange).toHaveBeenCalled();
-        expect(store.get('player-volume')).toBe(0.5);
-        expect(setSpy).toHaveBeenCalledWith('player-volume', 0.5);
-    });
+                handler({ type: 'SET_PLAYER_VOLUME', playerVolume: 0.3 });
 
-    test('SET_VIDEO_QUALITY and SET_VIDEO_PLAYBACK_SPEED update, persist and emit', () => {
-        const store: any = createStore();
+                expect(onChangedPlayerVolume).toHaveBeenCalledWith();
+                expect(onChangedPlayerVolume).toHaveBeenCalledTimes(1);
 
-        const onQuality = jest.fn();
-        const onSpeed = jest.fn();
-        store.on('changed_video_quality', onQuality);
-        store.on('changed_video_playback_speed', onSpeed);
+                expect(store.get('player-volume')).toBe(0.3);
+                expect(store.get('player-volume')).not.toBe(initialValue);
+                expect(browserCacheSetSpy).toHaveBeenCalledWith('player-volume', 0.3);
+            });
 
-        const cacheInstance = (BrowserCache as jest.Mock).mock.results[0].value;
-        const setSpy = cacheInstance.set;
+            test('Action type: "SET_PLAYER_SOUND_MUTED"', () => {
+                const initialValue = store.get('player-sound-muted');
 
-        store.actions_handler({ type: 'SET_VIDEO_QUALITY', quality: '720p' });
-        expect(onQuality).toHaveBeenCalled();
-        expect(store.get('video-quality')).toBe('720p');
-        expect(setSpy).toHaveBeenCalledWith('video-quality', '720p');
+                handler({ type: 'SET_PLAYER_SOUND_MUTED', playerSoundMuted: !initialValue });
 
-        store.actions_handler({ type: 'SET_VIDEO_PLAYBACK_SPEED', playbackSpeed: 1.5 });
-        expect(onSpeed).toHaveBeenCalled();
-        expect(store.get('video-playback-speed')).toBe(1.5);
-        expect(setSpy).toHaveBeenCalledWith('video-playback-speed', 1.5);
-    });
+                expect(onChangedPlayerSoundMuted).toHaveBeenCalledWith();
+                expect(onChangedPlayerSoundMuted).toHaveBeenCalledTimes(1);
 
-    test('TOGGLE_VIEWER_MODE flips current state and emits', () => {
-        const store: any = createStore();
+                expect(store.get('player-sound-muted')).toBe(!initialValue);
+                expect(browserCacheSetSpy).toHaveBeenCalledWith('player-sound-muted', !initialValue);
+            });
 
-        const onChange = jest.fn();
-        store.on('changed_viewer_mode', onChange);
+            test('Action type: "SET_VIDEO_QUALITY"', () => {
+                const initialValue = store.get('video-quality');
 
-        const initial = store.get('in-theater-mode');
-        store.actions_handler({ type: 'TOGGLE_VIEWER_MODE' });
+                handler({ type: 'SET_VIDEO_QUALITY', quality: 1080 });
 
-        expect(onChange).toHaveBeenCalled();
-        expect(store.get('in-theater-mode')).toBe(!initial);
-    });
+                expect(onChangedVideoQuality).toHaveBeenCalledWith();
+                expect(onChangedVideoQuality).toHaveBeenCalledTimes(1);
 
-    test('SET_PLAYER_SOUND_MUTED updates, persists and emits', () => {
-        const store: any = createStore();
+                expect(store.get('video-quality')).toBe(1080);
+                expect(store.get('video-quality')).not.toBe(initialValue);
+                expect(browserCacheSetSpy).toHaveBeenCalledWith('video-quality', 1080);
+            });
 
-        const onChange = jest.fn();
-        store.on('changed_player_sound_muted', onChange);
+            test('Action type: "SET_VIDEO_PLAYBACK_SPEED"', () => {
+                const initialValue = store.get('video-playback-speed');
 
-        const cacheInstance = (BrowserCache as jest.Mock).mock.results[0].value;
-        const setSpy = cacheInstance.set;
+                handler({ type: 'SET_VIDEO_PLAYBACK_SPEED', playbackSpeed: 1.5 });
 
-        store.actions_handler({ type: 'SET_PLAYER_SOUND_MUTED', playerSoundMuted: true });
+                expect(onChangedVideoPlaybackSpeed).toHaveBeenCalledWith();
+                expect(onChangedVideoPlaybackSpeed).toHaveBeenCalledTimes(1);
 
-        expect(onChange).toHaveBeenCalled();
-        expect(store.get('player-sound-muted')).toBe(true);
-        expect(setSpy).toHaveBeenCalledWith('player-sound-muted', true);
+                expect(store.get('video-playback-speed')).toBe(1.5);
+                expect(store.get('video-playback-speed')).not.toBe(initialValue);
+                expect(browserCacheSetSpy).toHaveBeenCalledWith('video-playback-speed', 1.5);
+            });
+        });
     });
 });

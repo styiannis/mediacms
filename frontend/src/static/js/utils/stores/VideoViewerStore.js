@@ -62,6 +62,7 @@ class VideoPlayerStore extends EventEmitter {
         switch (action.type) {
             case 'TOGGLE_VIEWER_MODE':
                 _StoreData.inTheaterMode = !_StoreData.inTheaterMode;
+                browserCache.set('in-theater-mode', _StoreData.inTheaterMode);
                 this.emit('changed_viewer_mode');
                 break;
             case 'SET_VIEWER_MODE':

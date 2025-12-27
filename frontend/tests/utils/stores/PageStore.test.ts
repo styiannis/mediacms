@@ -1,130 +1,143 @@
-import PageStoreModule from '../../../src/static/js/utils/stores/PageStore';
+import { BrowserCache } from '../../../src/static/js/utils/classes';
+import store from '../../../src/static/js/utils/stores/PageStore';
 
-// Mocks for external dependencies and browser APIs
+import { sampleMediaCMSConfig } from '../../tests-constants';
+
 jest.mock('../../../src/static/js/utils/classes/', () => ({
     BrowserCache: jest.fn().mockImplementation(() => ({
-        get: jest.fn().mockReturnValue(undefined),
+        get: (key: string) => (key === 'media-auto-play' ? false : undefined),
         set: jest.fn(),
     })),
 }));
 
-jest.mock('../../../src/static/js/utils/helpers', () => ({
-    BrowserEvents: jest.fn().mockImplementation(() => ({
-        doc: jest.fn(),
-        win: jest.fn(),
-    })),
-    exportStore: (instance: any) => instance,
-}));
-
 jest.mock('../../../src/static/js/utils/settings/config', () => ({
-    config: jest.fn().mockImplementation(() => ({
-        site: { id: 'site-id' },
-        api: { playlists: '/api/playlists' },
-        contents: { a: 1 },
-        enabled: { features: ['x'] },
-        media: { item: { fields: [] } },
-        options: { theme: 'light' },
-    })),
+    config: jest.fn(() => jest.requireActual('../../tests-constants').sampleMediaCMSConfig),
 }));
 
-// crypto.getRandomValues mock
-(window as any).crypto = {
-    getRandomValues: (arr: Uint32Array) => {
-        for (let i = 0; i < arr.length; i++) arr[i] = i + 1;
-        return arr;
-    },
-};
-
-// performance.now mock
-(global as any).performance = (global as any).performance || ({} as any);
-(global as any).performance.now = () => 123.456;
-
-// Intl.DateTimeFormat mock
-(global as any).Intl = (global as any).Intl || ({} as any);
-(global as any).Intl.DateTimeFormat = jest.fn().mockImplementation(() => ({
-    resolvedOptions: () => ({ timeZone: 'UTC' }),
-}));
-
-// Date.now mock
-const dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(1700000000000);
-
-describe('PageStore', () => {
-    function createStore() {
-        // Re-require to ensure constructor runs with current mocks
-        const Store = (PageStoreModule as any).default || PageStoreModule;
-        return Store; // exportStore returns instance
-    }
-
-    afterAll(() => {
-        dateNowSpy.mockRestore();
-    });
-
-    test('Handles INIT_PAGE action and exposes current-page', () => {
-        const store: any = createStore();
-
+describe('utils/store', () => {
+    describe('PageStore', () => {
         const handler = store.actions_handler.bind(store);
+
         const onInit = jest.fn();
+        const onToggleAutoPlay = jest.fn();
+        const onAddNotification = jest.fn();
+
         store.on('page_init', onInit);
+        store.on('switched_media_auto_play', onToggleAutoPlay);
+        store.on('added_notification', onAddNotification);
 
-        handler({ type: 'INIT_PAGE', page: 'home' });
+        test('Validate initial values', () => {
+            // Configuration
+            expect(store.get('config-contents')).toStrictEqual(sampleMediaCMSConfig.contents);
+            expect(store.get('config-enabled')).toStrictEqual(sampleMediaCMSConfig.enabled);
+            expect(store.get('config-media-item')).toStrictEqual(sampleMediaCMSConfig.media.item);
+            expect(store.get('config-options')).toStrictEqual(sampleMediaCMSConfig.options);
+            expect(store.get('config-site')).toStrictEqual(sampleMediaCMSConfig.site);
 
-        expect(onInit).toHaveBeenCalled();
-        expect(store.get('current-page')).toBe('home');
-    });
+            // Playlists API path
+            expect(store.get('api-playlists')).toStrictEqual(sampleMediaCMSConfig.api.playlists);
 
-    test('Toggles auto play, persists to cache, and emits event', () => {
-        const store: any = createStore();
+            // Autoplay media files
+            expect(store.get('media-auto-play')).toBe(false);
 
-        // Setup BrowserCache.set spy via mock instance
-        const { BrowserCache } = require('../../../src/static/js/utils/classes/');
-        const cacheInstance = (BrowserCache as jest.Mock).mock.results[0].value;
-        const setSpy = cacheInstance.set;
+            // Notifications
+            // @todo: Check default notifications when is defined the value of 'window.MediaCMS.notifications' and it is not empty.
+            expect(store.get('notifications')).toStrictEqual([]);
+            expect(store.get('notifications-size')).toBe(0);
+        });
 
-        const onToggle = jest.fn();
-        store.on('switched_media_auto_play', onToggle);
+        test('Trigger and validate browser events behavior', () => {
+            const docVisChange = jest.fn();
+            const winScroll = jest.fn();
+            const winResize = jest.fn();
 
-        const initial = store.get('media-auto-play');
-        store.actions_handler({ type: 'TOGGLE_AUTO_PLAY' });
+            store.on('document_visibility_change', docVisChange);
+            store.on('window_scroll', winScroll);
+            store.on('window_resize', winResize);
 
-        expect(onToggle).toHaveBeenCalled();
-        expect(store.get('media-auto-play')).toBe(!initial);
-        expect(setSpy).toHaveBeenCalledWith('media-auto-play', !initial);
-    });
+            store.onDocumentVisibilityChange();
+            store.onWindowScroll();
+            store.onWindowResize();
 
-    test('Adds notification and emits event', () => {
-        const store: any = createStore();
+            expect(docVisChange).toHaveBeenCalled();
+            expect(winScroll).toHaveBeenCalled();
+            expect(winResize).toHaveBeenCalledTimes(1);
+        });
 
-        const onAdd = jest.fn();
-        store.on('added_notification', onAdd);
+        describe('Trigger and validate actions behavior', () => {
+            test('Action type: "INIT_PAGE"', () => {
+                handler({ type: 'INIT_PAGE', page: 'home' });
+                expect(onInit).toHaveBeenCalledWith();
+                expect(onInit).toHaveBeenCalledTimes(1);
+                expect(store.get('current-page')).toBe('home');
 
-        store.actions_handler({ type: 'ADD_NOTIFICATION', notification: 'new-note' });
+                handler({ type: 'INIT_PAGE', page: 'about' });
+                expect(onInit).toHaveBeenCalledWith();
+                expect(onInit).toHaveBeenCalledTimes(2);
+                expect(store.get('current-page')).toBe('about');
 
-        expect(onAdd).toHaveBeenCalled();
-        expect(store.get('notifications-size')).toBe(1);
-        const msgs = store.get('notifications');
-        expect(msgs.length).toBe(1);
-        expect(typeof msgs[0][0]).toBe('string'); // id produced by uniqid
-        expect(msgs[0][1]).toBe('new-note');
-    });
+                handler({ type: 'INIT_PAGE', page: 'profile' });
+                expect(onInit).toHaveBeenCalledWith();
+                expect(onInit).toHaveBeenCalledTimes(3);
+                expect(store.get('current-page')).toBe('profile');
 
-    test('Emits browser events for visibility, scroll and resize', () => {
-        const store: any = createStore();
+                expect(onToggleAutoPlay).toHaveBeenCalledTimes(0);
+                expect(onAddNotification).toHaveBeenCalledTimes(0);
+            });
 
-        const vis = jest.fn();
-        const scr = jest.fn();
-        const res = jest.fn();
+            test('Action type: "ADD_NOTIFICATION"', () => {
+                // Add notification
+                handler({ type: 'ADD_NOTIFICATION', notification: 'notification msg' });
+                expect(onAddNotification).toHaveBeenCalledWith();
+                expect(onAddNotification).toHaveBeenCalledTimes(1);
+                expect(store.get('notifications-size')).toBe(1);
 
-        store.on('document_visibility_change', vis);
-        store.on('window_scroll', scr);
-        store.on('window_resize', res);
+                const currentNotifications = store.get('notifications');
+                expect(currentNotifications.length).toBe(1);
+                expect(typeof currentNotifications[0][0]).toBe('string');
+                expect(currentNotifications[0][1]).toBe('notification msg');
 
-        // Trigger internal handlers directly
-        store.onDocumentVisibilityChange();
-        store.onWindowScroll();
-        store.onWindowResize();
+                expect(store.get('notifications-size')).toBe(0);
+                expect(store.get('notifications')).toStrictEqual([]);
 
-        expect(vis).toHaveBeenCalled();
-        expect(scr).toHaveBeenCalled();
-        expect(res).toHaveBeenCalled();
+                // Add another notification
+                handler({ type: 'ADD_NOTIFICATION', notification: 'new notification msg' });
+
+                expect(onAddNotification).toHaveBeenCalledWith();
+                expect(onAddNotification).toHaveBeenCalledTimes(2);
+
+                expect(store.get('notifications-size')).toBe(1);
+                expect(store.get('notifications')[0][1]).toBe('new notification msg');
+
+                expect(store.get('notifications-size')).toBe(0);
+                expect(store.get('notifications')).toStrictEqual([]);
+
+                // Add invalid notification
+                handler({ type: 'ADD_NOTIFICATION', notification: 44 });
+                expect(onAddNotification).toHaveBeenCalledWith();
+                expect(onAddNotification).toHaveBeenCalledTimes(3);
+
+                expect(store.get('notifications-size')).toBe(0);
+                expect(store.get('notifications')).toStrictEqual([]);
+
+                expect(onInit).toHaveBeenCalledTimes(3);
+                expect(onToggleAutoPlay).toHaveBeenCalledTimes(0);
+            });
+
+            test('Action type: "TOGGLE_AUTO_PLAY"', () => {
+                const browserCacheInstance = (BrowserCache as jest.Mock).mock.results[0].value;
+                const browserCacheSetSpy = browserCacheInstance.set;
+
+                const initialValue = store.get('media-auto-play');
+
+                handler({ type: 'TOGGLE_AUTO_PLAY' });
+
+                expect(onToggleAutoPlay).toHaveBeenCalledWith();
+                expect(onToggleAutoPlay).toHaveBeenCalledTimes(1);
+
+                expect(store.get('media-auto-play')).toBe(!initialValue);
+                expect(browserCacheSetSpy).toHaveBeenCalledWith('media-auto-play', !initialValue);
+            });
+        });
     });
 });
