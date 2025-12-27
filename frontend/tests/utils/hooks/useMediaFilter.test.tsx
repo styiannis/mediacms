@@ -50,75 +50,77 @@ function HookConsumer({ initial }: { initial: string }) {
     );
 }
 
-describe('utils/hooks/useMediaFilter', () => {
-    test('Returns a 6-tuple in expected order', () => {
-        let tuple: any;
-        const Comp: React.FC = () => {
-            tuple = useMediaFilter('init');
-            return null;
-        };
-        render(<Comp />);
-        expect(Array.isArray(tuple)).toBe(true);
-        expect(tuple).toHaveLength(6);
-        const [containerRef, value, setValue, popupContentRef, PopupContent, PopupTrigger] = tuple;
-        expect(containerRef).toBeDefined();
-        expect(value).toBe('init');
-        expect(typeof setValue).toBe('function');
-        expect(popupContentRef).toBeDefined();
-        expect(typeof PopupContent).toBe('function');
-        expect(typeof PopupTrigger).toBe('function');
-    });
+describe('utils/hooks', () => {
+    describe('useMediaFilter', () => {
+        test('Returns a 6-tuple in expected order', () => {
+            let tuple: any;
+            const Comp: React.FC = () => {
+                tuple = useMediaFilter('init');
+                return null;
+            };
+            render(<Comp />);
+            expect(Array.isArray(tuple)).toBe(true);
+            expect(tuple).toHaveLength(6);
+            const [containerRef, value, setValue, popupContentRef, PopupContent, PopupTrigger] = tuple;
+            expect(containerRef).toBeDefined();
+            expect(value).toBe('init');
+            expect(typeof setValue).toBe('function');
+            expect(popupContentRef).toBeDefined();
+            expect(typeof PopupContent).toBe('function');
+            expect(typeof PopupTrigger).toBe('function');
+        });
 
-    test('Initial value is respected and can be updated via setter', () => {
-        const { getByTestId } = render(<HookConsumer initial="first" />);
-        expect(getByTestId('value').textContent).toBe('first');
-        (getByTestId('set') as HTMLButtonElement).click();
-        expect(getByTestId('value').textContent).toBe('updated');
-    });
+        test('Initial value is respected and can be updated via setter', () => {
+            const { getByTestId } = render(<HookConsumer initial="first" />);
+            expect(getByTestId('value').textContent).toBe('first');
+            (getByTestId('set') as HTMLButtonElement).click();
+            expect(getByTestId('value').textContent).toBe('updated');
+        });
 
-    test('containerRef and popupContentRef are mutable ref objects', () => {
-        let data: any;
-        const Comp: React.FC = () => {
-            data = useMediaFilter('x');
-            return null;
-        };
-        render(<Comp />);
-        const [containerRef, _value, _setValue, popupContentRef] = data;
-        expect(containerRef).toHaveProperty('current');
-        expect(popupContentRef).toHaveProperty('current');
-        expect(containerRef.current).toBe(null);
-        expect(popupContentRef.current).toBe(null);
-    });
+        test('containerRef and popupContentRef are mutable ref objects', () => {
+            let data: any;
+            const Comp: React.FC = () => {
+                data = useMediaFilter('x');
+                return null;
+            };
+            render(<Comp />);
+            const [containerRef, _value, _setValue, popupContentRef] = data;
+            expect(containerRef).toHaveProperty('current');
+            expect(popupContentRef).toHaveProperty('current');
+            expect(containerRef.current).toBe(null);
+            expect(popupContentRef.current).toBe(null);
+        });
 
-    test('PopupContent and PopupTrigger are stable functions', () => {
-        let first: any;
-        let second: any;
-        const First: React.FC = () => {
-            first = useMediaFilter('a');
-            return null;
-        };
-        const Second: React.FC = () => {
-            second = useMediaFilter('b');
-            return null;
-        };
-        const Parent: React.FC = () => (
-            <>
-                <First />
-                <Second />
-            </>
-        );
-        render(<Parent />);
-        const [, , , , PopupContent1, PopupTrigger1] = first;
-        const [, , , , PopupContent2, PopupTrigger2] = second;
-        expect(typeof PopupContent1).toBe('function');
-        expect(typeof PopupTrigger1).toBe('function');
-        expect(PopupContent1).toBe(PopupContent2);
-        expect(PopupTrigger1).toBe(PopupTrigger2);
-    });
+        test('PopupContent and PopupTrigger are stable functions', () => {
+            let first: any;
+            let second: any;
+            const First: React.FC = () => {
+                first = useMediaFilter('a');
+                return null;
+            };
+            const Second: React.FC = () => {
+                second = useMediaFilter('b');
+                return null;
+            };
+            const Parent: React.FC = () => (
+                <>
+                    <First />
+                    <Second />
+                </>
+            );
+            render(<Parent />);
+            const [, , , , PopupContent1, PopupTrigger1] = first;
+            const [, , , , PopupContent2, PopupTrigger2] = second;
+            expect(typeof PopupContent1).toBe('function');
+            expect(typeof PopupTrigger1).toBe('function');
+            expect(PopupContent1).toBe(PopupContent2);
+            expect(PopupTrigger1).toBe(PopupTrigger2);
+        });
 
-    test('Returned popup components can be rendered without errors', () => {
-        const { getByTestId } = render(<HookConsumer initial="val" />);
-        expect(getByTestId('pc')).toBeTruthy();
-        expect(getByTestId('pt')).toBeTruthy();
+        test('Returned popup components can be rendered without errors', () => {
+            const { getByTestId } = render(<HookConsumer initial="val" />);
+            expect(getByTestId('pc')).toBeTruthy();
+            expect(getByTestId('pt')).toBeTruthy();
+        });
     });
 });

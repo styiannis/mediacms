@@ -68,56 +68,58 @@ function HookConsumer(props: any) {
     );
 }
 
-describe('utils/hooks/useItemListSync', () => {
-    beforeEach(() => {
-        mockOnItemsLoad = jest.fn();
-        mockOnItemsCount = jest.fn();
-        addListItemsSpy = jest.fn();
-    });
+describe('utils/hooks', () => {
+    describe('useItemListSync', () => {
+        beforeEach(() => {
+            mockOnItemsLoad = jest.fn();
+            mockOnItemsCount = jest.fn();
+            addListItemsSpy = jest.fn();
+        });
 
-    test('computes classname.listOuter with optional className prop', () => {
-        const { getByTestId, rerender } = render((<HookConsumer className=" extra  " />) as any);
-        expect(getByTestId('class-outer').textContent).toBe('items-list-outer extra');
+        test('computes classname.listOuter with optional className prop', () => {
+            const { getByTestId, rerender } = render((<HookConsumer className=" extra  " />) as any);
+            expect(getByTestId('class-outer').textContent).toBe('items-list-outer extra');
 
-        rerender((<HookConsumer />) as any);
-        expect(getByTestId('class-outer').textContent).toBe('items-list-outer');
-        expect(getByTestId('class-list').textContent).toBe('items-list');
-    });
+            rerender((<HookConsumer />) as any);
+            expect(getByTestId('class-outer').textContent).toBe('items-list-outer');
+            expect(getByTestId('class-list').textContent).toBe('items-list');
+        });
 
-    test('renders SHOW MORE button when more pages exist and not loaded all', () => {
-        const { getByTestId, container } = render(
-            (<HookConsumer __items={[1]} __countedItems={1} __totalPages={3} __loadedAll={false} />) as any
-        );
-        const after = getByTestId('render-after');
-        const btn = after.querySelector('button.load-more') as HTMLButtonElement;
-        expect(btn).toBeTruthy();
-        expect(btn.textContent).toBe('SHOW MORE');
+        test('renders SHOW MORE button when more pages exist and not loaded all', () => {
+            const { getByTestId, container } = render(
+                (<HookConsumer __items={[1]} __countedItems={1} __totalPages={3} __loadedAll={false} />) as any
+            );
+            const after = getByTestId('render-after');
+            const btn = after.querySelector('button.load-more') as HTMLButtonElement;
+            expect(btn).toBeTruthy();
+            expect(btn.textContent).toBe('SHOW MORE');
 
-        fireEvent.click(btn);
-        expect(mockListHandler.loadItems).toHaveBeenCalledTimes(1);
-        expect(container).toBeTruthy();
-    });
+            fireEvent.click(btn);
+            expect(mockListHandler.loadItems).toHaveBeenCalledTimes(1);
+            expect(container).toBeTruthy();
+        });
 
-    test('hides SHOW MORE when totalPages <= 1', () => {
-        const { getByTestId } = render(
-            // With totalPages=1 the hook should not render the button regardless of loadedAll
-            (<HookConsumer __items={[1, 2]} __countedItems={2} __totalPages={1} __loadedAll={true} />) as any
-        );
-        expect(getByTestId('render-after').textContent).toBe('');
-    });
+        test('hides SHOW MORE when totalPages <= 1', () => {
+            const { getByTestId } = render(
+                // With totalPages=1 the hook should not render the button regardless of loadedAll
+                (<HookConsumer __items={[1, 2]} __countedItems={2} __totalPages={1} __loadedAll={true} />) as any
+            );
+            expect(getByTestId('render-after').textContent).toBe('');
+        });
 
-    test('hides SHOW MORE when loadedAllItems is true', () => {
-        const { getByTestId } = render(
-            (<HookConsumer __items={[1, 2, 3]} __countedItems={3} __totalPages={5} __loadedAll={true} />) as any
-        );
-        expect(getByTestId('render-after').textContent).toBe('');
-    });
+        test('hides SHOW MORE when loadedAllItems is true', () => {
+            const { getByTestId } = render(
+                (<HookConsumer __items={[1, 2, 3]} __countedItems={3} __totalPages={5} __loadedAll={true} />) as any
+            );
+            expect(getByTestId('render-after').textContent).toBe('');
+        });
 
-    test('invokes addListItems and afterItemsLoad when items change', () => {
-        const { rerender } = render((<HookConsumer __items={[]} />) as any);
-        expect(addListItemsSpy).toHaveBeenCalledTimes(1);
-        rerender((<HookConsumer __items={[1]} />) as any);
-        // useEffect runs again due to items change
-        expect(addListItemsSpy).toHaveBeenCalledTimes(2);
+        test('invokes addListItems and afterItemsLoad when items change', () => {
+            const { rerender } = render((<HookConsumer __items={[]} />) as any);
+            expect(addListItemsSpy).toHaveBeenCalledTimes(1);
+            rerender((<HookConsumer __items={[1]} />) as any);
+            // useEffect runs again due to items change
+            expect(addListItemsSpy).toHaveBeenCalledTimes(2);
+        });
     });
 });

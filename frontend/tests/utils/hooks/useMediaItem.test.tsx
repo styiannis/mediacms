@@ -63,105 +63,107 @@ function HookConsumer(props: any) {
     );
 }
 
-describe('utils/hooks/useMediaItem', () => {
-    test('renders basic components from useItem and edit/view links', () => {
-        const props = {
-            title: 'My Title',
-            description: 'My Desc',
-            editLink: '/edit/1',
-            link: '/watch/1',
-            showSelection: true,
-            singleLinkContent: true,
-            author_name: 'Author',
-            author_link: '/u/author',
-            views: 10,
-            publish_date: '2020-01-01T00:00:00Z',
-        };
-        const { getByTestId, queryByTestId } = render(<HookConsumer {...props} />);
-        expect(getByTestId('title').textContent).toBe('My Title');
-        expect(getByTestId('desc').textContent).toBe('My Desc');
-        expect(getByTestId('thumb').textContent).toBe('thumb.jpg');
+describe('utils/hooks', () => {
+    describe('useMediaItem', () => {
+        test('renders basic components from useItem and edit/view links', () => {
+            const props = {
+                title: 'My Title',
+                description: 'My Desc',
+                editLink: '/edit/1',
+                link: '/watch/1',
+                showSelection: true,
+                singleLinkContent: true,
+                author_name: 'Author',
+                author_link: '/u/author',
+                views: 10,
+                publish_date: '2020-01-01T00:00:00Z',
+            };
+            const { getByTestId, queryByTestId } = render(<HookConsumer {...props} />);
+            expect(getByTestId('title').textContent).toBe('My Title');
+            expect(getByTestId('desc').textContent).toBe('My Desc');
+            expect(getByTestId('thumb').textContent).toBe('thumb.jpg');
 
-        expect(getByTestId('edit').getAttribute('href')).toBe('/edit/1');
-        // Meta present because hideAllMeta not set
-        expect(getByTestId('views').getAttribute('data-views')).toBe('10');
-        expect(getByTestId('date')).toBeTruthy();
-        expect(getByTestId('view').getAttribute('href')).toBe('/watch/1');
-        expect(queryByTestId('author')).toBeTruthy();
-    });
+            expect(getByTestId('edit').getAttribute('href')).toBe('/edit/1');
+            // Meta present because hideAllMeta not set
+            expect(getByTestId('views').getAttribute('data-views')).toBe('10');
+            expect(getByTestId('date')).toBeTruthy();
+            expect(getByTestId('view').getAttribute('href')).toBe('/watch/1');
+            expect(queryByTestId('author')).toBeTruthy();
+        });
 
-    test('view link uses publishLink when provided and showSelection=true', () => {
-        const props = {
-            editLink: '/edit/2',
-            link: '/watch/2',
-            publishLink: '/publish/2',
-            showSelection: true,
-            singleLinkContent: true,
-            author_name: 'A',
-            author_link: '',
-            views: 0,
-            publish_date: 0,
-        };
-        const { getByTestId } = render(<HookConsumer {...props} />);
-        expect(getByTestId('view').getAttribute('href')).toBe('/publish/2');
-    });
+        test('view link uses publishLink when provided and showSelection=true', () => {
+            const props = {
+                editLink: '/edit/2',
+                link: '/watch/2',
+                publishLink: '/publish/2',
+                showSelection: true,
+                singleLinkContent: true,
+                author_name: 'A',
+                author_link: '',
+                views: 0,
+                publish_date: 0,
+            };
+            const { getByTestId } = render(<HookConsumer {...props} />);
+            expect(getByTestId('view').getAttribute('href')).toBe('/publish/2');
+        });
 
-    test('hides author, views, and date based on props', () => {
-        const props = {
-            editLink: '/e',
-            link: '/l',
-            showSelection: true,
-            hideAuthor: true,
-            hideViews: true,
-            hideDate: true,
-            publish_date: '2020-01-01T00:00:00Z',
-            views: 5,
-            author_name: 'Hidden',
-            author_link: '/u/x',
-        };
-        const { queryByTestId } = render(<HookConsumer {...props} />);
-        expect(queryByTestId('author')).toBeNull();
-        expect(queryByTestId('views')).toBeNull();
-        expect(queryByTestId('date')).toBeNull();
-    });
+        test('hides author, views, and date based on props', () => {
+            const props = {
+                editLink: '/e',
+                link: '/l',
+                showSelection: true,
+                hideAuthor: true,
+                hideViews: true,
+                hideDate: true,
+                publish_date: '2020-01-01T00:00:00Z',
+                views: 5,
+                author_name: 'Hidden',
+                author_link: '/u/x',
+            };
+            const { queryByTestId } = render(<HookConsumer {...props} />);
+            expect(queryByTestId('author')).toBeNull();
+            expect(queryByTestId('views')).toBeNull();
+            expect(queryByTestId('date')).toBeNull();
+        });
 
-    test('author link resolves using formatInnerLink and PageStore base url when singleLinkContent=false', () => {
-        const props = {
-            editLink: '/e',
-            link: '/l',
-            showSelection: true,
-            singleLinkContent: false,
-            hideAuthor: false,
-            author_name: 'John',
-            author_link: '/u/john',
-            publish_date: '2020-01-01T00:00:00Z',
-        } as any;
-        const { container } = render(<HookConsumer {...props} />);
-        const a = container.querySelector('[data-testid="author-link"]') as HTMLAnchorElement;
-        expect(a).toBeTruthy();
-        expect(a.getAttribute('href')).toBe('https://example.com/u/john');
-        expect(a.getAttribute('data-name')).toBe('John');
-    });
+        test('author link resolves using formatInnerLink and PageStore base url when singleLinkContent=false', () => {
+            const props = {
+                editLink: '/e',
+                link: '/l',
+                showSelection: true,
+                singleLinkContent: false,
+                hideAuthor: false,
+                author_name: 'John',
+                author_link: '/u/john',
+                publish_date: '2020-01-01T00:00:00Z',
+            } as any;
+            const { container } = render(<HookConsumer {...props} />);
+            const a = container.querySelector('[data-testid="author-link"]') as HTMLAnchorElement;
+            expect(a).toBeTruthy();
+            expect(a.getAttribute('href')).toBe('https://example.com/u/john');
+            expect(a.getAttribute('data-name')).toBe('John');
+        });
 
-    test('meta wrapper hidden when hideAllMeta=true', () => {
-        const props = {
-            editLink: '/e',
-            link: '/l',
-            showSelection: true,
-            hideAllMeta: true,
-            publish_date: '2020-01-01T00:00:00Z',
-        } as any;
-        const { queryByTestId } = render(<HookConsumer {...props} />);
-        // When metaComponents returns null, none of its children are rendered
-        expect(queryByTestId('author')).toBeNull();
-        expect(queryByTestId('views')).toBeNull();
-        expect(queryByTestId('date')).toBeNull();
-    });
+        test('meta wrapper hidden when hideAllMeta=true', () => {
+            const props = {
+                editLink: '/e',
+                link: '/l',
+                showSelection: true,
+                hideAllMeta: true,
+                publish_date: '2020-01-01T00:00:00Z',
+            } as any;
+            const { queryByTestId } = render(<HookConsumer {...props} />);
+            // When metaComponents returns null, none of its children are rendered
+            expect(queryByTestId('author')).toBeNull();
+            expect(queryByTestId('views')).toBeNull();
+            expect(queryByTestId('date')).toBeNull();
+        });
 
-    test('itemClassname concatenates inputs correctly', () => {
-        expect(itemClassname('base', '', false)).toBe('base');
-        expect(itemClassname('base', 'extra', false)).toBe('base extra');
-        expect(itemClassname('base', '', true)).toBe('base pl-active-item');
-        expect(itemClassname('base', 'extra', true)).toBe('base extra pl-active-item');
+        test('itemClassname concatenates inputs correctly', () => {
+            expect(itemClassname('base', '', false)).toBe('base');
+            expect(itemClassname('base', 'extra', false)).toBe('base extra');
+            expect(itemClassname('base', '', true)).toBe('base pl-active-item');
+            expect(itemClassname('base', 'extra', true)).toBe('base extra pl-active-item');
+        });
     });
 });

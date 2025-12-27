@@ -1,48 +1,46 @@
-import { load_author_data, remove_profile } from '../../../src/static/js/utils/actions/ProfilePageActions';
+import { ProfilePageActions } from '../../../src/static/js/utils/actions';
+import { dispatcher } from '../../../src/static/js/utils/dispatcher';
 
-jest.mock('../../../src/static/js/utils/actions/../dispatcher', () => {
-    const dispatch = jest.fn();
-    return { dispatcher: { dispatch } };
-});
+// Mock the dispatcher module used by ProfilePageActions
+jest.mock('../../../src/static/js/utils/actions/../dispatcher', () => ({ dispatcher: { dispatch: jest.fn() } }));
 
-// Re-import after mocking to get the mocked dispatcher reference
-import { dispatcher } from '../../../src/static/js/utils/actions/../dispatcher';
+describe('utils/actions', () => {
+    describe('ProfilePageActions', () => {
+        const dispatch = dispatcher.dispatch;
 
-describe('ProfilePageActions', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
+        beforeEach(() => {
+            (dispatcher.dispatch as jest.Mock).mockClear();
+        });
 
-    it('Should dispatch LOAD_AUTHOR_DATA when load_author_data is called', () => {
-        load_author_data();
-        expect(dispatcher.dispatch).toHaveBeenCalledTimes(1);
-        expect(dispatcher.dispatch).toHaveBeenCalledWith({ type: 'LOAD_AUTHOR_DATA' });
-    });
+        it('Should dispatch LOAD_AUTHOR_DATA when load_author_data is called', () => {
+            ProfilePageActions.load_author_data();
+            expect(dispatch).toHaveBeenCalledTimes(1);
+            expect(dispatch).toHaveBeenCalledWith({ type: 'LOAD_AUTHOR_DATA' });
+        });
 
-    it('Should dispatch REMOVE_PROFILE when remove_profile is called', () => {
-        remove_profile();
-        expect(dispatcher.dispatch).toHaveBeenCalledTimes(1);
-        expect(dispatcher.dispatch).toHaveBeenCalledWith({ type: 'REMOVE_PROFILE' });
-    });
+        it('Should dispatch REMOVE_PROFILE when remove_profile is called', () => {
+            ProfilePageActions.remove_profile();
+            expect(dispatch).toHaveBeenCalledTimes(1);
+            expect(dispatch).toHaveBeenCalledWith({ type: 'REMOVE_PROFILE' });
+        });
 
-    it('Should not dispatch extra actions for load_author_data', () => {
-        load_author_data();
-        expect(dispatcher.dispatch).toHaveBeenCalledWith({ type: 'LOAD_AUTHOR_DATA' });
-        expect((dispatcher.dispatch as jest.Mock).mock.calls[0][0]).toEqual({ type: 'LOAD_AUTHOR_DATA' });
-        expect((dispatcher.dispatch as jest.Mock).mock.calls.length).toBe(1);
-    });
+        it('Should not dispatch extra actions for load_author_data', () => {
+            ProfilePageActions.load_author_data();
+            expect(dispatch).toHaveBeenCalledTimes(1);
+            expect(dispatch).toHaveBeenCalledWith({ type: 'LOAD_AUTHOR_DATA' });
+        });
 
-    it('Should not dispatch extra actions for remove_profile', () => {
-        remove_profile();
-        expect(dispatcher.dispatch).toHaveBeenCalledWith({ type: 'REMOVE_PROFILE' });
-        expect((dispatcher.dispatch as jest.Mock).mock.calls[0][0]).toEqual({ type: 'REMOVE_PROFILE' });
-        expect((dispatcher.dispatch as jest.Mock).mock.calls.length).toBe(1);
-    });
+        it('Should not dispatch extra actions for remove_profile', () => {
+            ProfilePageActions.remove_profile();
+            expect(dispatch).toHaveBeenCalledTimes(1);
+            expect(dispatch).toHaveBeenCalledWith({ type: 'REMOVE_PROFILE' });
+        });
 
-    it('Should allow chaining multiple calls and preserve order', () => {
-        load_author_data();
-        remove_profile();
-        expect(dispatcher.dispatch).toHaveBeenNthCalledWith(1, { type: 'LOAD_AUTHOR_DATA' });
-        expect(dispatcher.dispatch).toHaveBeenNthCalledWith(2, { type: 'REMOVE_PROFILE' });
+        it('Should allow chaining multiple calls and preserve order', () => {
+            ProfilePageActions.load_author_data();
+            ProfilePageActions.remove_profile();
+            expect(dispatch).toHaveBeenNthCalledWith(1, { type: 'LOAD_AUTHOR_DATA' });
+            expect(dispatch).toHaveBeenNthCalledWith(2, { type: 'REMOVE_PROFILE' });
+        });
     });
 });
