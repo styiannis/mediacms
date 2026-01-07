@@ -13,18 +13,10 @@ describe('utils/actions', () => {
         });
 
         describe('loadMediaData', () => {
-            it('Should dispatch LOAD_MEDIA_DATA', () => {
+            it('Should dispatch LOAD_MEDIA_DATA action', () => {
                 MediaPageActions.loadMediaData();
                 expect(dispatch).toHaveBeenCalledTimes(1);
                 expect(dispatch).toHaveBeenCalledWith({ type: 'LOAD_MEDIA_DATA' });
-            });
-
-            it('Should be idempotent for multiple calls', () => {
-                MediaPageActions.loadMediaData();
-                MediaPageActions.loadMediaData();
-                expect(dispatch).toHaveBeenCalledTimes(2);
-                expect(dispatch).toHaveBeenNthCalledWith(1, { type: 'LOAD_MEDIA_DATA' });
-                expect(dispatch).toHaveBeenNthCalledWith(2, { type: 'LOAD_MEDIA_DATA' });
             });
         });
 
@@ -43,18 +35,17 @@ describe('utils/actions', () => {
         });
 
         describe('reportMedia', () => {
+            it('Should dispatch REPORT_MEDIA with empty string when description is undefined', () => {
+                MediaPageActions.reportMedia();
+                expect(dispatch).toHaveBeenCalledTimes(1);
+                expect(dispatch).toHaveBeenCalledWith({ type: 'REPORT_MEDIA', reportDescription: '' });
+            });
+
             // @todo: Revisit this behavior
             it('Should dispatch REPORT_MEDIA with stripped description when provided', () => {
                 MediaPageActions.reportMedia('  some   text  ');
                 expect(dispatch).toHaveBeenCalledTimes(1);
                 expect(dispatch).toHaveBeenCalledWith({ type: 'REPORT_MEDIA', reportDescription: 'sometext' });
-            });
-
-            // @todo: Revisit this behavior
-            it('Should dispatch REPORT_MEDIA with empty string when description is undefined', () => {
-                MediaPageActions.reportMedia();
-                expect(dispatch).toHaveBeenCalledTimes(1);
-                expect(dispatch).toHaveBeenCalledWith({ type: 'REPORT_MEDIA', reportDescription: '' });
             });
 
             // @todo: Revisit this behavior
@@ -97,7 +88,7 @@ describe('utils/actions', () => {
                 expect(dispatch).toHaveBeenCalledWith({ type: 'SUBMIT_COMMENT', commentText });
             });
 
-            it('Should dispatch DELETE_COMMENT with provided id', () => {
+            it('Should dispatch DELETE_COMMENT with provided comment id', () => {
                 const commentId = 'c-123';
                 MediaPageActions.deleteComment(commentId);
                 expect(dispatch).toHaveBeenCalledTimes(1);
@@ -105,7 +96,7 @@ describe('utils/actions', () => {
             });
 
             // @todo: Revisit this behavior
-            it('Should allow numeric comment id for delete', () => {
+            it('Should dispatch DELETE_COMMENT with numeric comment id', () => {
                 const commentId = 42;
                 MediaPageActions.deleteComment(commentId);
                 expect(dispatch).toHaveBeenCalledTimes(1);

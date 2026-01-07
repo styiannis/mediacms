@@ -12,6 +12,7 @@ export function dislikeMedia() {
     dispatcher.dispatch({ type: 'DISLIKE_MEDIA' });
 }
 
+// @todo: Revisit this
 export function reportMedia(reportDescription?: string) {
     dispatcher.dispatch({
         type: 'REPORT_MEDIA',
@@ -53,10 +54,10 @@ export function removeMediaFromPlaylist(playlist_id: string, media_id: string) {
 
 export function addNewPlaylist(playlist_data: {
     playlist_id: string;
-    add_date: Date; // @todo: Check this again
+    add_date: Date; // @todo: Revisit this
     description: string;
     title: string;
-    media_list: string[]; // @todo: Check this again
+    media_list: string[]; // @todo: Revisit this
 }) {
     dispatcher.dispatch({ type: 'APPEND_NEW_PLAYLIST', playlist_data });
 }

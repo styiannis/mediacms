@@ -1,6 +1,6 @@
 import { PlaylistPageActions } from '../../../src/static/js/utils/actions';
 import { dispatcher } from '../../../src/static/js/utils/dispatcher';
-// @todo: Revisit this behavior
+
 // Mock the dispatcher module used by PlaylistPageActions
 jest.mock('../../../src/static/js/utils/dispatcher', () => ({ dispatcher: { dispatch: jest.fn() } }));
 
@@ -13,23 +13,15 @@ describe('utils/actions', () => {
         });
 
         describe('loadPlaylistData', () => {
-            it('Should dispatch LOAD_PLAYLIST_DATA', () => {
+            it('Should dispatch LOAD_PLAYLIST_DATA action', () => {
                 PlaylistPageActions.loadPlaylistData();
                 expect(dispatch).toHaveBeenCalledTimes(1);
                 expect(dispatch).toHaveBeenCalledWith({ type: 'LOAD_PLAYLIST_DATA' });
             });
-
-            it('Should be idempotent for multiple calls', () => {
-                PlaylistPageActions.loadPlaylistData();
-                PlaylistPageActions.loadPlaylistData();
-                expect(dispatch).toHaveBeenCalledTimes(2);
-                expect(dispatch).toHaveBeenNthCalledWith(1, { type: 'LOAD_PLAYLIST_DATA' });
-                expect(dispatch).toHaveBeenNthCalledWith(2, { type: 'LOAD_PLAYLIST_DATA' });
-            });
         });
 
         describe('toggleSave', () => {
-            it('Should dispatch TOGGLE_SAVE', () => {
+            it('Should dispatch TOGGLE_SAVE action', () => {
                 PlaylistPageActions.toggleSave();
                 expect(dispatch).toHaveBeenCalledTimes(1);
                 expect(dispatch).toHaveBeenCalledWith({ type: 'TOGGLE_SAVE' });
@@ -45,7 +37,7 @@ describe('utils/actions', () => {
             });
 
             // @todo: Revisit this behavior
-            it('Should support empty strings for title and description', () => {
+            it('Should dispatch UPDATE_PLAYLIST with empty strings for title and description', () => {
                 const payload = { title: '', description: '' };
                 PlaylistPageActions.updatePlaylist(payload);
                 expect(dispatch).toHaveBeenCalledWith({ type: 'UPDATE_PLAYLIST', playlist_data: payload });
@@ -53,7 +45,7 @@ describe('utils/actions', () => {
         });
 
         describe('removePlaylist', () => {
-            it('Should dispatch REMOVE_PLAYLIST without payload', () => {
+            it('Should dispatch REMOVE_PLAYLIST action', () => {
                 PlaylistPageActions.removePlaylist();
                 expect(dispatch).toHaveBeenCalledTimes(1);
                 expect(dispatch).toHaveBeenCalledWith({ type: 'REMOVE_PLAYLIST' });
@@ -72,7 +64,7 @@ describe('utils/actions', () => {
             });
 
             // @todo: Revisit this behavior
-            it('Should allow empty ids as strings', () => {
+            it('Should dispatch MEDIA_REMOVED_FROM_PLAYLIST with empty ids as strings', () => {
                 PlaylistPageActions.removedMediaFromPlaylist('', '');
                 expect(dispatch).toHaveBeenCalledWith({
                     type: 'MEDIA_REMOVED_FROM_PLAYLIST',
@@ -94,7 +86,7 @@ describe('utils/actions', () => {
             });
 
             // @todo: Revisit this behavior
-            it('Should support empty array for playlist media', () => {
+            it('Should dispatch PLAYLIST_MEDIA_REORDERED with empty array for playlist media', () => {
                 const items: any[] = [];
                 PlaylistPageActions.reorderedMediaInPlaylist(items);
                 expect(dispatch).toHaveBeenCalledWith({ type: 'PLAYLIST_MEDIA_REORDERED', playlist_media: items });

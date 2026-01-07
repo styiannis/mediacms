@@ -25,20 +25,16 @@ describe('utils/classes', () => {
             const cache = BrowserCache('prefix', 3600);
 
             if (cache instanceof Error) {
-                // Test failure trigger
                 expect(cache instanceof Error).toBe(false);
                 return;
             }
 
-            const ok = cache.set('foo', 'bar');
-            expect(ok).toBe(true);
-
-            const cachedVal = cache.get('foo');
-            expect(cachedVal).toBe('bar');
+            expect(cache.set('foo', 'bar')).toBe(true);
+            expect(cache.get('foo')).toBe('bar');
 
             // Ensure value serialized in localStorage with namespaced key
-            const raw = localStorage.getItem('prefix[foo]');
-            const parsed = JSON.parse(raw as string);
+            const raw = localStorage.getItem('prefix[foo]') as string;
+            const parsed = JSON.parse(raw);
             expect(parsed.value).toBe('bar');
             expect(typeof parsed.expire).toBe('number');
             expect(parsed.expire).toBeGreaterThan(Date.now());
@@ -48,7 +44,6 @@ describe('utils/classes', () => {
             const cache = BrowserCache('prefix', 1);
 
             if (cache instanceof Error) {
-                // Test failure trigger
                 expect(cache instanceof Error).toBe(false);
                 return;
             }
@@ -68,13 +63,11 @@ describe('utils/classes', () => {
             const cacheB = BrowserCache('B', 3600);
 
             if (cacheA instanceof Error) {
-                // Test failure trigger
                 expect(cacheA instanceof Error).toBe(false);
                 return;
             }
 
             if (cacheB instanceof Error) {
-                // Test failure trigger
                 expect(cacheB instanceof Error).toBe(false);
                 return;
             }
@@ -89,6 +82,11 @@ describe('utils/classes', () => {
 
             expect(localStorage.getItem('A[x]')).toBeNull();
             expect(localStorage.getItem('B[x]')).toBeTruthy();
+
+            cacheB.clear();
+
+            expect(localStorage.getItem('A[x]')).toBeNull();
+            expect(localStorage.getItem('B[x]')).toBeNull();
         });
     });
 });

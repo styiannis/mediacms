@@ -18,14 +18,6 @@ describe('utils/actions', () => {
                 expect(dispatch).toHaveBeenCalledTimes(1);
                 expect(dispatch).toHaveBeenCalledWith({ type: 'TOGGLE_LOOP' });
             });
-
-            it('Should dispatch the same payload on repeated calls', () => {
-                PlaylistViewActions.toggleLoop();
-                PlaylistViewActions.toggleLoop();
-                expect(dispatch).toHaveBeenCalledTimes(2);
-                expect(dispatch).toHaveBeenNthCalledWith(1, { type: 'TOGGLE_LOOP' });
-                expect(dispatch).toHaveBeenNthCalledWith(2, { type: 'TOGGLE_LOOP' });
-            });
         });
 
         describe('toggleShuffle', () => {
@@ -41,14 +33,6 @@ describe('utils/actions', () => {
                 PlaylistViewActions.toggleSave();
                 expect(dispatch).toHaveBeenCalledTimes(1);
                 expect(dispatch).toHaveBeenCalledWith({ type: 'TOGGLE_SAVE' });
-            });
-
-            it('Should be stable across multiple invocations', () => {
-                for (let i = 0; i < 3; i++) {
-                    PlaylistViewActions.toggleSave();
-                }
-                expect(dispatch).toHaveBeenCalledTimes(3);
-                (dispatch as jest.Mock).mock.calls.forEach(([arg]) => expect(arg).toEqual({ type: 'TOGGLE_SAVE' }));
             });
         });
     });

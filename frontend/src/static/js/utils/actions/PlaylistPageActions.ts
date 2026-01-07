@@ -20,8 +20,7 @@ export function removedMediaFromPlaylist(media_id: string, playlist_id: string) 
     dispatcher.dispatch({ type: 'MEDIA_REMOVED_FROM_PLAYLIST', media_id, playlist_id });
 }
 
-export function reorderedMediaInPlaylist(
-    newMediaData: { [k: string]: any; thumbnail_url: string; url: string }[] // @todo: Check this again
-) {
+// @todo: Revisit this
+export function reorderedMediaInPlaylist(newMediaData: { [k: string]: any; thumbnail_url: string; url: string }[]) {
     dispatcher.dispatch({ type: 'PLAYLIST_MEDIA_REORDERED', playlist_media: newMediaData });
 }

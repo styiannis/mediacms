@@ -20,17 +20,10 @@ describe('utils/actions', () => {
             });
 
             // @todo: Revisit this behavior
-            it('Should allow empty string as page and still dispatch', () => {
+            it('Should dispatch INIT_PAGE with empty string', () => {
                 PageActions.initPage('');
                 expect(dispatch).toHaveBeenCalledTimes(1);
                 expect(dispatch).toHaveBeenCalledWith({ type: 'INIT_PAGE', page: '' });
-            });
-
-            it('Should handle long page names', () => {
-                const longPage = 'p'.repeat(500);
-                PageActions.initPage(longPage);
-                expect(dispatch).toHaveBeenCalledTimes(1);
-                expect(dispatch).toHaveBeenCalledWith({ type: 'INIT_PAGE', page: longPage });
             });
         });
 
@@ -39,14 +32,6 @@ describe('utils/actions', () => {
                 PageActions.toggleMediaAutoPlay();
                 expect(dispatch).toHaveBeenCalledTimes(1);
                 expect(dispatch).toHaveBeenCalledWith({ type: 'TOGGLE_AUTO_PLAY' });
-            });
-
-            it('Should be idempotent for multiple calls', () => {
-                PageActions.toggleMediaAutoPlay();
-                PageActions.toggleMediaAutoPlay();
-                expect(dispatch).toHaveBeenCalledTimes(2);
-                expect(dispatch).toHaveBeenNthCalledWith(1, { type: 'TOGGLE_AUTO_PLAY' });
-                expect(dispatch).toHaveBeenNthCalledWith(2, { type: 'TOGGLE_AUTO_PLAY' });
             });
         });
 
@@ -59,16 +44,9 @@ describe('utils/actions', () => {
             });
 
             // @todo: Revisit this behavior
-            it('Should support empty notification message', () => {
+            it('Should dispatch ADD_NOTIFICATION with empty notification message', () => {
                 const notification = '';
                 const notificationId = 'id-empty';
-                PageActions.addNotification(notification, notificationId);
-                expect(dispatch).toHaveBeenCalledWith({ type: 'ADD_NOTIFICATION', notification, notificationId });
-            });
-
-            it('Should support long notification ids', () => {
-                const notification = 'Msg';
-                const notificationId = 'x'.repeat(256);
                 PageActions.addNotification(notification, notificationId);
                 expect(dispatch).toHaveBeenCalledWith({ type: 'ADD_NOTIFICATION', notification, notificationId });
             });

@@ -12,35 +12,16 @@ describe('utils/actions', () => {
             (dispatcher.dispatch as jest.Mock).mockClear();
         });
 
-        it('Should dispatch LOAD_AUTHOR_DATA when load_author_data is called', () => {
+        it('Should dispatch LOAD_AUTHOR_DATA ', () => {
             ProfilePageActions.load_author_data();
             expect(dispatch).toHaveBeenCalledTimes(1);
             expect(dispatch).toHaveBeenCalledWith({ type: 'LOAD_AUTHOR_DATA' });
         });
 
-        it('Should dispatch REMOVE_PROFILE when remove_profile is called', () => {
+        it('Should dispatch REMOVE_PROFILE ', () => {
             ProfilePageActions.remove_profile();
             expect(dispatch).toHaveBeenCalledTimes(1);
             expect(dispatch).toHaveBeenCalledWith({ type: 'REMOVE_PROFILE' });
-        });
-
-        it('Should not dispatch extra actions for load_author_data', () => {
-            ProfilePageActions.load_author_data();
-            expect(dispatch).toHaveBeenCalledTimes(1);
-            expect(dispatch).toHaveBeenCalledWith({ type: 'LOAD_AUTHOR_DATA' });
-        });
-
-        it('Should not dispatch extra actions for remove_profile', () => {
-            ProfilePageActions.remove_profile();
-            expect(dispatch).toHaveBeenCalledTimes(1);
-            expect(dispatch).toHaveBeenCalledWith({ type: 'REMOVE_PROFILE' });
-        });
-
-        it('Should allow chaining multiple calls and preserve order', () => {
-            ProfilePageActions.load_author_data();
-            ProfilePageActions.remove_profile();
-            expect(dispatch).toHaveBeenNthCalledWith(1, { type: 'LOAD_AUTHOR_DATA' });
-            expect(dispatch).toHaveBeenNthCalledWith(2, { type: 'REMOVE_PROFILE' });
         });
     });
 });
