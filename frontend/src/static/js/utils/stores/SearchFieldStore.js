@@ -84,6 +84,7 @@ class SearchFieldStore extends EventEmitter {
                 let u = this.mediacms_config.api.search.titles + q;
 
                 if (SearchFieldStoreData[this.id].requestedQuery) {
+                    // @todo: Replace it with "SearchFieldStoreData[this.id].requestedQuery !== q"
                     if (SearchFieldStoreData[this.id].requestedQuery.q !== q) {
                         SearchFieldStoreData[this.id].pendingRequested = { query: q, url: u };
                     }

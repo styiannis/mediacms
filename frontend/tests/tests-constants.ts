@@ -170,7 +170,7 @@ export const sampleMediaCMSConfig: MediaCMSConfig = {
         recommended: '',
         search: {
             query: '',
-            titles: '',
+            titles: './search.html?titles=',
             tag: '',
             category: '',
         },

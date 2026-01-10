@@ -6,14 +6,14 @@ jest.mock('../../../src/static/js/utils/classes/', () => ({
         get: (key: string) => {
             let result: any = undefined;
             switch (key) {
-                case 'in-theater-mode':
-                    result = true;
-                    break;
                 case 'player-volume':
                     result = 0.6;
                     break;
                 case 'player-sound-muted':
                     result = false;
+                    break;
+                case 'in-theater-mode':
+                    result = true;
                     break;
                 case 'video-quality':
                     result = 720;
@@ -55,15 +55,14 @@ describe('utils/store', () => {
             expect(store.get('player-volume')).toBe(0.6);
             expect(store.get('player-sound-muted')).toBe(false);
             expect(store.get('in-theater-mode')).toBe(true);
-            // @todo: Revisit the key 'video-data'
-            expect(store.get('video-data')).toBe(undefined);
+            expect(store.get('video-data')).toBe(undefined); // @todo: Revisit this behavior
             expect(store.get('video-quality')).toBe(720);
             expect(store.get('video-playback-speed')).toBe(2);
         });
 
         describe('Trigger and validate actions behavior', () => {
             test('Action type: "TOGGLE_VIEWER_MODE"', () => {
-                const initialValue = store.get('video-playback-speed');
+                const initialValue = store.get('in-theater-mode');
 
                 handler({ type: 'TOGGLE_VIEWER_MODE' });
 
@@ -76,65 +75,64 @@ describe('utils/store', () => {
 
             test('Action type: "SET_VIEWER_MODE"', () => {
                 const initialValue = store.get('in-theater-mode');
+                const newValue = !initialValue;
 
-                handler({ type: 'SET_VIEWER_MODE', inTheaterMode: !initialValue });
+                handler({ type: 'SET_VIEWER_MODE', inTheaterMode: newValue });
 
                 expect(onChangedViewerMode).toHaveBeenCalledWith();
                 expect(onChangedViewerMode).toHaveBeenCalledTimes(2); // The first time called by 'TOGGLE_VIEWER_MODE' action.
 
-                expect(store.get('in-theater-mode')).toBe(!initialValue);
-                expect(browserCacheSetSpy).toHaveBeenCalledWith('in-theater-mode', !initialValue);
+                expect(store.get('in-theater-mode')).toBe(newValue);
+                expect(browserCacheSetSpy).toHaveBeenCalledWith('in-theater-mode', newValue);
             });
 
             test('Action type: "SET_PLAYER_VOLUME"', () => {
-                const initialValue = store.get('player-volume');
+                const newValue = 0.3;
 
-                handler({ type: 'SET_PLAYER_VOLUME', playerVolume: 0.3 });
+                handler({ type: 'SET_PLAYER_VOLUME', playerVolume: newValue });
 
                 expect(onChangedPlayerVolume).toHaveBeenCalledWith();
                 expect(onChangedPlayerVolume).toHaveBeenCalledTimes(1);
 
-                expect(store.get('player-volume')).toBe(0.3);
-                expect(store.get('player-volume')).not.toBe(initialValue);
-                expect(browserCacheSetSpy).toHaveBeenCalledWith('player-volume', 0.3);
+                expect(store.get('player-volume')).toBe(newValue);
+                expect(browserCacheSetSpy).toHaveBeenCalledWith('player-volume', newValue);
             });
 
             test('Action type: "SET_PLAYER_SOUND_MUTED"', () => {
                 const initialValue = store.get('player-sound-muted');
+                const newValue = !initialValue;
 
-                handler({ type: 'SET_PLAYER_SOUND_MUTED', playerSoundMuted: !initialValue });
+                handler({ type: 'SET_PLAYER_SOUND_MUTED', playerSoundMuted: newValue });
 
                 expect(onChangedPlayerSoundMuted).toHaveBeenCalledWith();
                 expect(onChangedPlayerSoundMuted).toHaveBeenCalledTimes(1);
 
-                expect(store.get('player-sound-muted')).toBe(!initialValue);
-                expect(browserCacheSetSpy).toHaveBeenCalledWith('player-sound-muted', !initialValue);
+                expect(store.get('player-sound-muted')).toBe(newValue);
+                expect(browserCacheSetSpy).toHaveBeenCalledWith('player-sound-muted', newValue);
             });
 
             test('Action type: "SET_VIDEO_QUALITY"', () => {
-                const initialValue = store.get('video-quality');
+                const newValue = 1080;
 
-                handler({ type: 'SET_VIDEO_QUALITY', quality: 1080 });
+                handler({ type: 'SET_VIDEO_QUALITY', quality: newValue });
 
                 expect(onChangedVideoQuality).toHaveBeenCalledWith();
                 expect(onChangedVideoQuality).toHaveBeenCalledTimes(1);
 
-                expect(store.get('video-quality')).toBe(1080);
-                expect(store.get('video-quality')).not.toBe(initialValue);
-                expect(browserCacheSetSpy).toHaveBeenCalledWith('video-quality', 1080);
+                expect(store.get('video-quality')).toBe(newValue);
+                expect(browserCacheSetSpy).toHaveBeenCalledWith('video-quality', newValue);
             });
 
             test('Action type: "SET_VIDEO_PLAYBACK_SPEED"', () => {
-                const initialValue = store.get('video-playback-speed');
+                const newValue = 1.5;
 
-                handler({ type: 'SET_VIDEO_PLAYBACK_SPEED', playbackSpeed: 1.5 });
+                handler({ type: 'SET_VIDEO_PLAYBACK_SPEED', playbackSpeed: newValue });
 
                 expect(onChangedVideoPlaybackSpeed).toHaveBeenCalledWith();
                 expect(onChangedVideoPlaybackSpeed).toHaveBeenCalledTimes(1);
 
-                expect(store.get('video-playback-speed')).toBe(1.5);
-                expect(store.get('video-playback-speed')).not.toBe(initialValue);
-                expect(browserCacheSetSpy).toHaveBeenCalledWith('video-playback-speed', 1.5);
+                expect(store.get('video-playback-speed')).toBe(newValue);
+                expect(browserCacheSetSpy).toHaveBeenCalledWith('video-playback-speed', newValue);
             });
         });
     });
