@@ -31,7 +31,7 @@ describe('utils/store', () => {
             expect(store.get('search-tags')).toBe(urlParams.t);
         });
 
-        test('Action type: "Action type: "TOGGLE_VIEWER_MODE""', async () => {
+        test('Action type: "Action type: "TOGGLE_VIEWER_MODE"', async () => {
             const predictionsQuery_1 = 'predictions_query_1';
             const predictionsQuery_2 = 'predictions_query_2';
 
