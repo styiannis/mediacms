@@ -44,6 +44,7 @@ class ProfilePageStore extends EventEmitter {
                     let getArgs = window.location.search;
 
                     if (getArgs && '' !== getArgs) {
+                        // @todo: Check this again
                         getArgs = getArgs.split('?')[1].split('=');
 
                         let i = 0;
