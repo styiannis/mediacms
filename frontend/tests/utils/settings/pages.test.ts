@@ -1,13 +1,15 @@
-import { init, settings } from '../../../src/static/js/utils/settings/pages';
+import { pagesConfig } from '../../../src/static/js/utils/settings/pages';
 
-const pagesConfig = (sett?: any) => {
-    init(sett);
-    return settings();
-};
+// Behaviors:
+// 1) Defaults: all known pages disabled with default titles
+// 2) Enables a page unless explicitly set to enabled: false
+// 3) Trims provided titles and preserves defaults when title is undefined
+// 4) Ignores unknown keys in settings and does not throw
+// 5) Does not mutate the input settings object
 
 describe('utils/settings', () => {
     describe('pages', () => {
-        test('Defaults: all known pages disabled with default titles', () => {
+        test('defaults: all known pages disabled with default titles', () => {
             const cfg = pagesConfig();
             expect(cfg).toStrictEqual({
                 latest: { enabled: false, title: 'Recent uploads' },
@@ -19,15 +21,16 @@ describe('utils/settings', () => {
             });
         });
 
-        test('Enables each page unless explicitly disabled', () => {
+        test('enables each page unless explicitly disabled', () => {
             const cfg = pagesConfig({
                 latest: {},
                 featured: { enabled: true },
                 recommended: { enabled: false },
-                members: { enabled: undefined },
-                liked: { enabled: null },
-                history: { enabled: 0 },
-            });
+                members: { enabled: undefined as any },
+                liked: { enabled: null as any },
+                history: { enabled: 0 as any },
+            } as any);
+
             expect(cfg.latest.enabled).toBe(true);
             expect(cfg.featured.enabled).toBe(true);
             expect(cfg.recommended.enabled).toBe(false);
@@ -36,25 +39,34 @@ describe('utils/settings', () => {
             expect(cfg.history.enabled).toBe(true);
         });
 
-        test('Trims provided titles and preserves defaults when title is undefined', () => {
+        test('trims provided titles and preserves defaults when title is undefined', () => {
             const cfg = pagesConfig({
                 latest: { title: '  Latest  ' },
                 featured: { title: '\nFeatured' },
                 recommended: {},
-            });
+            } as any);
+
             expect(cfg.latest.title).toBe('Latest');
             expect(cfg.featured.title).toBe('Featured');
             expect(cfg.recommended.title).toBe('Recommended');
         });
 
-        test('Ignores unknown keys in settings', () => {
-            const cfg = pagesConfig({ unknownKey: { enabled: true, title: 'X' }, latest: { enabled: true } });
+        test('ignores unknown keys in settings', () => {
+            const cfg = pagesConfig({
+                // @ts-ignore
+                unknownKey: { enabled: true, title: 'X' },
+                latest: { enabled: true },
+            } as any);
+
             expect(cfg.latest.enabled).toBe(true);
-            expect(cfg.unknownKey).toBeUndefined();
+            expect((cfg as any).unknownKey).toBeUndefined();
         });
 
-        test('Does not mutate the input settings object', () => {
-            const input = { latest: { enabled: false, title: ' A ' }, featured: { enabled: true, title: ' B ' } };
+        test('does not mutate the input settings object', () => {
+            const input: any = {
+                latest: { enabled: false, title: ' A ' },
+                featured: { enabled: true, title: ' B ' },
+            };
             const snapshot = JSON.parse(JSON.stringify(input));
             pagesConfig(input);
             expect(input).toStrictEqual(snapshot);

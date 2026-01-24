@@ -15,7 +15,7 @@ declare global {
     }
 }
 
-describe('js/utils/helpers', () => {
+describe('utils/helpers', () => {
     describe('dom', () => {
         describe('supportsSvgAsImg', () => {
             test('Delegates to document.implementation.hasFeature', () => {
@@ -78,7 +78,7 @@ describe('js/utils/helpers', () => {
             test('Does not register non-function callbacks', () => {
                 const be = BrowserEvents();
 
-                be.win('not-a-fn', null);
+                be.win('not-a-fn' as unknown as Function, null as unknown as Function);
                 be.doc(undefined);
 
                 // Should still have registered the listeners on construction
@@ -152,8 +152,8 @@ describe('js/utils/helpers', () => {
             test('Ignores non-function values without throwing and still registers listeners once', () => {
                 const be = BrowserEvents();
 
-                be.doc('noop');
-                be.win(null, undefined);
+                be.doc('noop' as unknown as Function);
+                be.win(null as unknown as Function, undefined);
 
                 const docCount = (document.addEventListener as jest.Mock).mock.calls.filter(
                     (c) => c[0] === 'visibilitychange'

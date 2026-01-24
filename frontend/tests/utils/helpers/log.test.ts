@@ -1,45 +1,55 @@
-import { warn, error } from '../../../src/static/js/utils/helpers/log';
+import { warn, error } from '../../../src/static/js/utils/helpers';
 
-describe('js/utils/helpers', () => {
+/**
+ * Minimal behavior coverage for simple console proxy helpers:
+ * 1. warn forwards arguments to console.warn preserving order and count.
+ * 2. error forwards arguments to console.error preserving order and count.
+ * 3. warn supports zero arguments (still calls console.warn).
+ * 4. error supports zero arguments (still calls console.error).
+ * 5. warn does not call console.error and error does not call console.warn.
+ */
+
+describe('utils/helpers', () => {
     describe('log', () => {
-        beforeEach(() => {
-            // Setup console mocks - replaces global console methods with jest mocks
-            globalThis.console.warn = jest.fn();
-            globalThis.console.error = jest.fn();
+        const originalWarn = console.warn;
+        const originalError = console.error;
 
+        beforeEach(() => {
+            console.warn = jest.fn();
+            console.error = jest.fn();
             jest.clearAllMocks();
         });
 
         afterEach(() => {
-            // Restore original console methods
-            jest.restoreAllMocks();
+            console.warn = originalWarn;
+            console.error = originalError;
         });
 
-        test('Warn proxies arguments to console.warn preserving order and count', () => {
+        test('warn proxies arguments to console.warn preserving order and count', () => {
             warn('a', 'b', 'c');
             expect(console.warn).toHaveBeenCalledTimes(1);
             expect(console.warn).toHaveBeenCalledWith('a', 'b', 'c');
         });
 
-        test('Error proxies arguments to console.error preserving order and count', () => {
+        test('error proxies arguments to console.error preserving order and count', () => {
             error('x', 'y');
             expect(console.error).toHaveBeenCalledTimes(1);
             expect(console.error).toHaveBeenCalledWith('x', 'y');
         });
 
-        test('Warn supports zero arguments', () => {
+        test('warn supports zero arguments', () => {
             warn();
             expect(console.warn).toHaveBeenCalledTimes(1);
             expect((console.warn as jest.Mock).mock.calls[0].length).toBe(0);
         });
 
-        test('Error supports zero arguments', () => {
+        test('error supports zero arguments', () => {
             error();
             expect(console.error).toHaveBeenCalledTimes(1);
             expect((console.error as jest.Mock).mock.calls[0].length).toBe(0);
         });
 
-        test('Warn does not call console.error and error does not call console.warn', () => {
+        test('warn does not call console.error and error does not call console.warn', () => {
             warn('only-warn');
             expect(console.warn).toHaveBeenCalledTimes(1);
             expect(console.error).not.toHaveBeenCalled();
