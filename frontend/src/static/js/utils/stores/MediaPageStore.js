@@ -39,6 +39,35 @@ function extractPlaylistId() {
     return playlistId;
 }
 
+function extractMediaId() {
+    let result = undefined;
+
+    let urlParams = (function () {
+        let ret = new UrlParse(window.location.href).query;
+        if (!ret) {
+            ret = [];
+        } else {
+            ret = ret.substring(1);
+            ret = ret.split('&');
+            ret = ret.length ? ret.map((v) => v.split('=')).flat() : [];
+        }
+        return ret;
+    })();
+
+    if (urlParams.length) {
+        let i = 0;
+        while (i < urlParams.length) {
+            if ('m' === urlParams[i]) {
+                // NOTE: "m" => media id/token.
+                result = urlParams[i + 1];
+            }
+            i += 2;
+        }
+    }
+
+    return result;
+}
+
 const MediaPageStoreData = {};
 
 class MediaPageStore extends EventEmitter {
@@ -58,6 +87,7 @@ class MediaPageStore extends EventEmitter {
                 value: 'MediaPageStoreData_' + Object.keys(MediaPageStoreData).length,
             }).id
         ] = {
+            mediaId: extractMediaId(),
             likedMedia: false,
             dislikedMedia: false,
             reported_times: 0,
@@ -79,30 +109,7 @@ class MediaPageStore extends EventEmitter {
     }
 
     loadData() {
-        if (!MediaPageStoreData[this.id].mediaId) {
-            let urlParams = (function () {
-                let ret = new UrlParse(window.location.href).query;
-                if (!ret) {
-                    ret = [];
-                } else {
-                    ret = ret.substring(1);
-                    ret.split('&');
-                    ret = ret.length ? ret.split('=') : [];
-                }
-                return ret;
-            })();
-
-            if (urlParams.length) {
-                let i = 0;
-                while (i < urlParams.length) {
-                    if ('m' === urlParams[i]) {
-                        // NOTE: "m" => media id/token.
-                        MediaPageStoreData[this.id].mediaId = urlParams[i + 1];
-                    }
-                    i += 2;
-                }
-            }
-        }
+        MediaPageStoreData[this.id].mediaId = MediaPageStoreData[this.id].mediaId ?? extractMediaId();
 
         if (!MediaPageStoreData[this.id].mediaId) {
             console.warn('Invalid media id:', MediaPageStoreData[this.id].mediaId);
@@ -288,7 +295,7 @@ class MediaPageStore extends EventEmitter {
                                 cntr += 1;
 
                                 if (cntr === tmp_playlists.length) {
-                                    this.emit('playlists_load');
+                                    _this.emit('playlists_load');
                                 }
                             }
                         );
@@ -845,6 +852,13 @@ class MediaPageStore extends EventEmitter {
         if (response && 204 === response.status) {
             this.emit('media_delete', MediaPageStoreData[this.id].mediaId);
         }
+        setTimeout(
+            function (ins) {
+                MediaPageStoreData[ins.id].while.deleteMedia = null;
+            },
+            100,
+            this
+        );
     }
 
     removeMediaFail() {

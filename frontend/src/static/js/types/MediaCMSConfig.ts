@@ -25,7 +25,7 @@ type MediaCMSConfigApi = {
         history: string;
         playlists: string;
     };
-    users: string;
+    users: string; // @todo: "users" or "members"?
 };
 
 type MediaCMSConfigContents = Omit<GlobalMediaCMS['contents'], 'notifications' | 'sidebar'> & {
