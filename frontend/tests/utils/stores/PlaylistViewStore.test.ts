@@ -27,8 +27,8 @@ describe('utils/store', () => {
         store.on('shuffle-updated', onShuffleUpdated);
         store.on('saved-updated', onSavedUpdated);
 
-        // @todo: Revisit initial values
         test('Validate initial values', () => {
+            expect(store.get('INVALID_TYPE')).toBe(null);
             expect(store.get('logged-in-user-playlist')).toBe(false);
             expect(store.get('enabled-loop')).toBe(undefined);
             expect(store.get('enabled-shuffle')).toBe(undefined);
@@ -36,25 +36,27 @@ describe('utils/store', () => {
         });
 
         describe('Trigger and validate actions behavior', () => {
-            // @todo: Revisit the code of this action. It needs to be fixed.
+            // @todo: Revisit the behavior of this action
             test('Action type: "TOGGLE_LOOP"', () => {
                 handler({ type: 'TOGGLE_LOOP' });
 
-                expect(onLoopRepeatUpdated).toHaveBeenCalledWith();
                 expect(onLoopRepeatUpdated).toHaveBeenCalledTimes(1);
+                expect(onLoopRepeatUpdated).toHaveBeenCalledWith();
 
                 expect(store.get('enabled-loop')).toBe(undefined);
+
                 expect(browserCacheSetSpy).toHaveBeenCalledWith('loopPlaylist[null]', true);
             });
 
-            // @todo: Revisit the code of this action. It needs to be fixed.
+            // @todo: Revisit the behavior of this action
             test('Action type: "TOGGLE_SHUFFLE"', () => {
                 handler({ type: 'TOGGLE_SHUFFLE' });
 
-                expect(onShuffleUpdated).toHaveBeenCalledWith();
                 expect(onShuffleUpdated).toHaveBeenCalledTimes(1);
+                expect(onShuffleUpdated).toHaveBeenCalledWith();
 
                 expect(store.get('enabled-shuffle')).toBe(undefined);
+
                 expect(browserCacheSetSpy).toHaveBeenCalledWith('shufflePlaylist[null]', true);
             });
 
@@ -63,8 +65,8 @@ describe('utils/store', () => {
 
                 handler({ type: 'TOGGLE_SAVE' });
 
-                expect(onSavedUpdated).toHaveBeenCalledWith();
                 expect(onSavedUpdated).toHaveBeenCalledTimes(1);
+                expect(onSavedUpdated).toHaveBeenCalledWith();
 
                 expect(store.get('saved-playlist')).toBe(!initialValue);
             });

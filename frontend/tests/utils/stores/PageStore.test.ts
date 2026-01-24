@@ -15,6 +15,10 @@ jest.mock('../../../src/static/js/utils/settings/config', () => ({
 }));
 
 describe('utils/store', () => {
+    afterAll(() => {
+        jest.clearAllMocks();
+    });
+
     describe('PageStore', () => {
         const handler = store.actions_handler.bind(store);
 
@@ -27,6 +31,13 @@ describe('utils/store', () => {
         store.on('added_notification', onAddNotification);
 
         test('Validate initial values', () => {
+            // BrowserCache mock
+            expect(store.get('browser-cache').get('media-auto-play')).toBe(false);
+            expect(store.get('browser-cache').get('ANY')).toBe(undefined);
+
+            // Autoplay media files
+            expect(store.get('media-auto-play')).toBe(false);
+
             // Configuration
             expect(store.get('config-contents')).toStrictEqual(sampleMediaCMSConfig.contents);
             expect(store.get('config-enabled')).toStrictEqual(sampleMediaCMSConfig.enabled);
@@ -37,13 +48,11 @@ describe('utils/store', () => {
             // Playlists API path
             expect(store.get('api-playlists')).toStrictEqual(sampleMediaCMSConfig.api.playlists);
 
-            // Autoplay media files
-            expect(store.get('media-auto-play')).toBe(false);
-
             // Notifications
-            // @todo: Check default notifications when is defined the value of 'window.MediaCMS.notifications' and it is not empty.
             expect(store.get('notifications')).toStrictEqual([]);
             expect(store.get('notifications-size')).toBe(0);
+
+            expect(store.get('current-page')).toBe(undefined);
         });
 
         test('Trigger and validate browser events behavior', () => {
@@ -67,61 +76,21 @@ describe('utils/store', () => {
         describe('Trigger and validate actions behavior', () => {
             test('Action type: "INIT_PAGE"', () => {
                 handler({ type: 'INIT_PAGE', page: 'home' });
-                expect(onInit).toHaveBeenCalledWith();
                 expect(onInit).toHaveBeenCalledTimes(1);
                 expect(store.get('current-page')).toBe('home');
 
                 handler({ type: 'INIT_PAGE', page: 'about' });
-                expect(onInit).toHaveBeenCalledWith();
                 expect(onInit).toHaveBeenCalledTimes(2);
                 expect(store.get('current-page')).toBe('about');
 
                 handler({ type: 'INIT_PAGE', page: 'profile' });
-                expect(onInit).toHaveBeenCalledWith();
                 expect(onInit).toHaveBeenCalledTimes(3);
                 expect(store.get('current-page')).toBe('profile');
 
+                expect(onInit).toHaveBeenCalledWith();
+
                 expect(onToggleAutoPlay).toHaveBeenCalledTimes(0);
                 expect(onAddNotification).toHaveBeenCalledTimes(0);
-            });
-
-            test('Action type: "ADD_NOTIFICATION"', () => {
-                // Add notification
-                handler({ type: 'ADD_NOTIFICATION', notification: 'notification msg' });
-                expect(onAddNotification).toHaveBeenCalledWith();
-                expect(onAddNotification).toHaveBeenCalledTimes(1);
-                expect(store.get('notifications-size')).toBe(1);
-
-                const currentNotifications = store.get('notifications');
-                expect(currentNotifications.length).toBe(1);
-                expect(typeof currentNotifications[0][0]).toBe('string');
-                expect(currentNotifications[0][1]).toBe('notification msg');
-
-                expect(store.get('notifications-size')).toBe(0);
-                expect(store.get('notifications')).toStrictEqual([]);
-
-                // Add another notification
-                handler({ type: 'ADD_NOTIFICATION', notification: 'new notification msg' });
-
-                expect(onAddNotification).toHaveBeenCalledWith();
-                expect(onAddNotification).toHaveBeenCalledTimes(2);
-
-                expect(store.get('notifications-size')).toBe(1);
-                expect(store.get('notifications')[0][1]).toBe('new notification msg');
-
-                expect(store.get('notifications-size')).toBe(0);
-                expect(store.get('notifications')).toStrictEqual([]);
-
-                // Add invalid notification
-                handler({ type: 'ADD_NOTIFICATION', notification: 44 });
-                expect(onAddNotification).toHaveBeenCalledWith();
-                expect(onAddNotification).toHaveBeenCalledTimes(3);
-
-                expect(store.get('notifications-size')).toBe(0);
-                expect(store.get('notifications')).toStrictEqual([]);
-
-                expect(onInit).toHaveBeenCalledTimes(3);
-                expect(onToggleAutoPlay).toHaveBeenCalledTimes(0);
             });
 
             test('Action type: "TOGGLE_AUTO_PLAY"', () => {
@@ -137,6 +106,48 @@ describe('utils/store', () => {
 
                 expect(store.get('media-auto-play')).toBe(!initialValue);
                 expect(browserCacheSetSpy).toHaveBeenCalledWith('media-auto-play', !initialValue);
+
+                browserCacheSetSpy.mockRestore();
+            });
+
+            test('Action type: "ADD_NOTIFICATION"', () => {
+                const notificationMsg1 = 'NOTIFICATION_MSG_1';
+                const notificationMsg2 = 'NOTIFICATION_MSG_2';
+                const invalidNotification = 44;
+
+                // Add notification
+                handler({ type: 'ADD_NOTIFICATION', notification: notificationMsg1 });
+                expect(onAddNotification).toHaveBeenCalledWith();
+                expect(onAddNotification).toHaveBeenCalledTimes(1);
+                expect(store.get('notifications-size')).toBe(1);
+
+                const currentNotifications = store.get('notifications');
+                expect(currentNotifications.length).toBe(1);
+                expect(typeof currentNotifications[0][0]).toBe('string');
+                expect(currentNotifications[0][1]).toBe(notificationMsg1);
+
+                expect(store.get('notifications-size')).toBe(0);
+                expect(store.get('notifications')).toStrictEqual([]);
+
+                // Add another notification
+                handler({ type: 'ADD_NOTIFICATION', notification: notificationMsg2 });
+
+                expect(onAddNotification).toHaveBeenCalledWith();
+                expect(onAddNotification).toHaveBeenCalledTimes(2);
+
+                expect(store.get('notifications-size')).toBe(1);
+                expect(store.get('notifications')[0][1]).toBe(notificationMsg2);
+
+                expect(store.get('notifications-size')).toBe(0);
+                expect(store.get('notifications')).toStrictEqual([]);
+
+                // Add invalid notification
+                handler({ type: 'ADD_NOTIFICATION', notification: invalidNotification });
+                expect(onAddNotification).toHaveBeenCalledWith();
+                expect(onAddNotification).toHaveBeenCalledTimes(3);
+
+                expect(store.get('notifications-size')).toBe(0);
+                expect(store.get('notifications')).toStrictEqual([]);
             });
         });
     });

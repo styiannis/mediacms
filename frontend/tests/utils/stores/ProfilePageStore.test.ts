@@ -61,7 +61,7 @@ describe('utils/store', () => {
 
                 // Mock delete request
                 (deleteRequest as jest.Mock).mockImplementation(
-                    (_url, _config, _cache, successCallback, _failCallback) => successCallback({ status: 204 })
+                    (_url, _config, _sync, successCallback, _failCallback) => successCallback({ status: 204 })
                 );
 
                 handler({ type: 'REMOVE_PROFILE' });
@@ -90,7 +90,7 @@ describe('utils/store', () => {
 
                 // Mock delete request
                 (deleteRequest as jest.Mock).mockImplementation(
-                    (_url, _config, _cache, _successCallback, failCallback) => failCallback.call(store)
+                    (_url, _config, _sync, _successCallback, failCallback) => failCallback.call(store)
                 );
 
                 handler({ type: 'REMOVE_PROFILE' });
@@ -126,13 +126,8 @@ describe('utils/store', () => {
 
                 handler({ type: 'LOAD_AUTHOR_DATA' });
 
-                // Verify getRequest was called with correct URL
-                expect(getRequest).toHaveBeenCalledWith(
-                    '/testuser', // API URL constructed from config + profileId
-                    false,
-                    store.onDataLoad,
-                    store.onDataLoadFail
-                );
+                // Verify getRequest was called with correct parameters
+                expect(getRequest).toHaveBeenCalledWith('/testuser', false, store.onDataLoad, store.onDataLoadFail);
 
                 // Verify event was emitted
                 expect(onLoadAuthorData).toHaveBeenCalledTimes(1);

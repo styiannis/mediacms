@@ -177,9 +177,9 @@ export const sampleMediaCMSConfig: MediaCMSConfig = {
         user: {
             liked: '',
             history: '',
-            playlists: '',
+            playlists: '/playlists/?author=',
         },
-        users: '',
+        users: '/users',
     },
     contents: {
         header: {
@@ -215,7 +215,7 @@ export const sampleMediaCMSConfig: MediaCMSConfig = {
     },
     member: {
         name: null,
-        username: null,
+        username: 'john',
         thumbnail: null,
         is: {
             admin: false,
@@ -241,10 +241,10 @@ export const sampleMediaCMSConfig: MediaCMSConfig = {
             manageMedia: false,
             manageUsers: false,
             mentionComment: false,
-            readComment: false,
+            readComment: true,
             register: false,
             reportMedia: false,
-            saveMedia: false,
+            saveMedia: true,
             shareMedia: false,
             usersNeedsToBeApproved: false,
         },
