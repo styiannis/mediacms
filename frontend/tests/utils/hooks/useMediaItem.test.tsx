@@ -1,16 +1,10 @@
 import React from 'react';
 import { render } from '@testing-library/react';
+import { useMediaItem, itemClassname } from '../../../src/static/js/utils/hooks/useMediaItem';
 
 // Mock dependencies used by useMediaItem
-jest.mock('../../../src/static/js/utils/helpers/', () => ({
-    replaceString: (s: string) => s,
-    formatInnerLink: (path: string, base: string) => `${base}${path}`,
-}));
 
-jest.mock('timeago.js', () => ({
-    format: (d: any) => `formatted-${new Date(d).toISOString()}`,
-}));
-
+// @todo: Revisit this
 jest.mock('../../../src/static/js/utils/stores/', () => ({
     PageStore: { get: (_: string) => ({ url: 'https://example.com' }) },
 }));
@@ -30,6 +24,7 @@ jest.mock('../../../src/static/js/components/list-item/includes/items', () => ({
     MediaItemViewLink: ({ link }: any) => <a data-testid="view" href={link} />,
 }));
 
+// @todo: Revisit this
 // useItem returns titleComponent, descriptionComponent, thumbnailUrl, UnderThumbWrapper
 jest.mock('../../../src/static/js/utils/hooks/useItem', () => ({
     useItem: (props: any) => ({
@@ -40,23 +35,21 @@ jest.mock('../../../src/static/js/utils/hooks/useItem', () => ({
     }),
 }));
 
-import { useMediaItem, itemClassname } from '../../../src/static/js/utils/hooks/useMediaItem';
-
 function HookConsumer(props: any) {
-    const [Title, Desc, thumbUrl, UnderThumb, Edit, Meta, View] = useMediaItem(props);
+    const [TitleComp, DescComp, thumbUrl, UnderThumbComp, EditComp, MetaComp, ViewComp] = useMediaItem(props);
     // The hook returns functions/components/values. To satisfy TS, render using React.createElement
     return (
         <div>
-            {typeof Title === 'function' ? React.createElement(Title as any) : null}
-            {typeof Desc === 'function' ? React.createElement(Desc as any) : null}
+            {typeof TitleComp === 'function' ? React.createElement(TitleComp) : null}
+            {typeof DescComp === 'function' ? React.createElement(DescComp) : null}
             <div data-testid="thumb">{typeof thumbUrl === 'string' ? thumbUrl : ''}</div>
-            {typeof UnderThumb === 'function'
+            {typeof UnderThumbComp === 'function'
                 ? React.createElement(
-                      UnderThumb as any,
+                      UnderThumbComp,
                       null,
-                      typeof Edit === 'function' ? React.createElement(Edit as any) : null,
-                      typeof Meta === 'function' ? React.createElement(Meta as any) : null,
-                      typeof View === 'function' ? React.createElement(View as any) : null
+                      typeof EditComp === 'function' ? React.createElement(EditComp) : null,
+                      typeof MetaComp === 'function' ? React.createElement(MetaComp) : null,
+                      typeof ViewComp === 'function' ? React.createElement(ViewComp) : null
                   )
                 : null}
         </div>
@@ -65,33 +58,48 @@ function HookConsumer(props: any) {
 
 describe('utils/hooks', () => {
     describe('useMediaItem', () => {
-        test('renders basic components from useItem and edit/view links', () => {
+        test('Renders basic components from useItem and edit/view links', () => {
+            // @todo: Revisit this
             const props = {
                 title: 'My Title',
                 description: 'My Desc',
-                editLink: '/edit/1',
+                thumbnail: 'thumb.jpg',
                 link: '/watch/1',
-                showSelection: true,
                 singleLinkContent: true,
+                // hasMediaViewer:...
+                // hasMediaViewerDescr:...
+                // meta_description:...
+                // onMount:...
+                // type:...
+                // ------------------------------
+                editLink: '/edit/1',
+                showSelection: true,
+                // publishLink: ...
+                // hideAuthor:...
                 author_name: 'Author',
                 author_link: '/u/author',
+                // hideViews:...
                 views: 10,
+                // hideDate:...
                 publish_date: '2020-01-01T00:00:00Z',
+                // hideAllMeta:...
             };
+
             const { getByTestId, queryByTestId } = render(<HookConsumer {...props} />);
-            expect(getByTestId('title').textContent).toBe('My Title');
-            expect(getByTestId('desc').textContent).toBe('My Desc');
+
+            expect(getByTestId('title').textContent).toBe(props.title);
+            expect(getByTestId('desc').textContent).toBe(props.description);
             expect(getByTestId('thumb').textContent).toBe('thumb.jpg');
 
-            expect(getByTestId('edit').getAttribute('href')).toBe('/edit/1');
-            // Meta present because hideAllMeta not set
-            expect(getByTestId('views').getAttribute('data-views')).toBe('10');
+            expect(getByTestId('edit').getAttribute('href')).toBe(props.editLink);
+
+            expect(getByTestId('views').getAttribute('data-views')).toBe(props.views.toString());
             expect(getByTestId('date')).toBeTruthy();
-            expect(getByTestId('view').getAttribute('href')).toBe('/watch/1');
+            expect(getByTestId('view').getAttribute('href')).toBe(props.link);
             expect(queryByTestId('author')).toBeTruthy();
         });
 
-        test('view link uses publishLink when provided and showSelection=true', () => {
+        test('View link uses publishLink when provided and showSelection=true', () => {
             const props = {
                 editLink: '/edit/2',
                 link: '/watch/2',
@@ -103,11 +111,13 @@ describe('utils/hooks', () => {
                 views: 0,
                 publish_date: 0,
             };
+
             const { getByTestId } = render(<HookConsumer {...props} />);
-            expect(getByTestId('view').getAttribute('href')).toBe('/publish/2');
+
+            expect(getByTestId('view').getAttribute('href')).toBe(props.publishLink);
         });
 
-        test('hides author, views, and date based on props', () => {
+        test('Hides author, views, and date based on props', () => {
             const props = {
                 editLink: '/e',
                 link: '/l',
@@ -120,13 +130,15 @@ describe('utils/hooks', () => {
                 author_name: 'Hidden',
                 author_link: '/u/x',
             };
+
             const { queryByTestId } = render(<HookConsumer {...props} />);
+
             expect(queryByTestId('author')).toBeNull();
             expect(queryByTestId('views')).toBeNull();
             expect(queryByTestId('date')).toBeNull();
         });
 
-        test('author link resolves using formatInnerLink and PageStore base url when singleLinkContent=false', () => {
+        test('Asuthor link resolves using formatInnerLink and PageStore base url when singleLinkContent=false', () => {
             const props = {
                 editLink: '/e',
                 link: '/l',
@@ -136,24 +148,28 @@ describe('utils/hooks', () => {
                 author_name: 'John',
                 author_link: '/u/john',
                 publish_date: '2020-01-01T00:00:00Z',
-            } as any;
+            };
+
             const { container } = render(<HookConsumer {...props} />);
+
             const a = container.querySelector('[data-testid="author-link"]') as HTMLAnchorElement;
+
             expect(a).toBeTruthy();
-            expect(a.getAttribute('href')).toBe('https://example.com/u/john');
-            expect(a.getAttribute('data-name')).toBe('John');
+            expect(a.getAttribute('href')).toBe(`https://example.com${props.author_link}`);
+            expect(a.getAttribute('data-name')).toBe(props.author_name);
         });
 
-        test('meta wrapper hidden when hideAllMeta=true', () => {
+        test('Meta wrapper hidden when hideAllMeta=true', () => {
             const props = {
                 editLink: '/e',
                 link: '/l',
                 showSelection: true,
                 hideAllMeta: true,
                 publish_date: '2020-01-01T00:00:00Z',
-            } as any;
+            };
+
             const { queryByTestId } = render(<HookConsumer {...props} />);
-            // When metaComponents returns null, none of its children are rendered
+
             expect(queryByTestId('author')).toBeNull();
             expect(queryByTestId('views')).toBeNull();
             expect(queryByTestId('date')).toBeNull();
