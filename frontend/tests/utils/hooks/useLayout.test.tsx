@@ -1,108 +1,121 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 
 import { useLayout } from '../../../src/static/js/utils/hooks/useLayout';
-// Mock contexts to avoid importing heavy config dependencies
-jest.mock('../../../src/static/js/utils/contexts', () => {
-    const React = require('react');
-    const ctx = (React as any).createContext(undefined);
-    return {
-        __esModule: true,
-        LayoutContext: ctx,
-    };
-});
 
-import { LayoutContext } from '../../../src/static/js/utils/contexts';
+jest.mock('../../../src/static/js/utils/classes/', () => ({
+    BrowserCache: jest.fn().mockImplementation(() => ({
+        get: (key: string) => {
+            let result: any = undefined;
+            switch (key) {
+                case 'visible-sidebar':
+                    result = true;
+                    break;
+            }
+            return result;
+        },
+        set: jest.fn(),
+    })),
+}));
+
+jest.mock('../../../src/static/js/utils/settings/config', () => ({
+    config: jest.fn(() => jest.requireActual('../../tests-constants').sampleMediaCMSConfig),
+}));
+
+import { LayoutContext, LayoutProvider } from '../../../src/static/js/utils/contexts';
 
 describe('utils/hooks', () => {
     describe('useLayout', () => {
-        test('returns the current LayoutContext value', () => {
-            const provided = { theme: 'dark', sidebarOpen: true } as any;
-            let received: any;
+        test('Returns default value', () => {
+            let received: ReturnType<typeof useLayout> | undefined;
+
             const Comp: React.FC = () => {
                 received = useLayout();
                 return null;
             };
+
             render(
-                <LayoutContext.Provider value={provided}>
+                <LayoutProvider>
                     <Comp />
-                </LayoutContext.Provider>
+                </LayoutProvider>
             );
-            expect(received).toBe(provided);
+
+            expect(received).toStrictEqual({
+                enabledSidebar: false,
+                visibleSidebar: true,
+                visibleMobileSearch: false,
+                setVisibleSidebar: expect.any(Function),
+                toggleMobileSearch: expect.any(Function),
+                toggleSidebar: expect.any(Function),
+            });
         });
 
-        test('updates when LayoutContext value changes across renders', () => {
-            const Wrapper: React.FC<{ value: any; children?: React.ReactNode }> = ({ value, children }) => (
-                <LayoutContext.Provider value={value}>{children}</LayoutContext.Provider>
-            );
-            let values: any[] = [];
-            const Comp: React.FC = () => {
-                values.push(useLayout());
-                return null;
-            };
-            const { rerender } = render(
-                <Wrapper value={{ theme: 'light' }}>
-                    <Comp />
-                </Wrapper>
-            );
-            rerender(
-                <Wrapper value={{ theme: 'dark' }}>
-                    <Comp />
-                </Wrapper>
-            );
-            expect(values[0]).toEqual({ theme: 'light' });
-            expect(values[1]).toEqual({ theme: 'dark' });
-        });
-
-        test('returns undefined when used without a Provider (default context value)', () => {
+        test('Returns default context value when used without a Provider', () => {
             let received: any = 'init';
+
             const Comp: React.FC = () => {
                 received = useLayout();
                 return null;
             };
+
             render(<Comp />);
-            expect(received).toBeUndefined();
+
+            expect(received).toStrictEqual({
+                enabledSidebar: true,
+                visibleSidebar: true,
+                visibleMobileSearch: false,
+                setVisibleSidebar: expect.any(Function),
+                toggleMobileSearch: expect.any(Function),
+                toggleSidebar: expect.any(Function),
+            });
         });
 
-        test('works with complex objects and functions inside context value', () => {
-            const toggle = jest.fn();
-            const provided = { theme: 'light', toggle } as any;
-            let received: any;
+        test('Toggle sidebar', () => {
+            jest.useFakeTimers();
+
+            let received: ReturnType<typeof useLayout> | undefined;
+
             const Comp: React.FC = () => {
                 received = useLayout();
                 return null;
             };
+
             render(
-                <LayoutContext.Provider value={provided}>
+                <LayoutProvider>
                     <Comp />
-                </LayoutContext.Provider>
+                </LayoutProvider>
             );
-            expect(received).toBe(provided);
-            expect(received.toggle).toBe(toggle);
-            received.toggle();
-            expect(toggle).toHaveBeenCalledTimes(1);
+
+            act(() => received?.toggleSidebar());
+            jest.advanceTimersByTime(241);
+            expect(received?.visibleSidebar).toBe(false);
+
+            act(() => received?.toggleSidebar());
+            jest.advanceTimersByTime(241);
+            expect(received?.visibleSidebar).toBe(true);
+
+            jest.useRealTimers();
         });
 
-        test('multiple consumers read the same provided value instance', () => {
-            const provided = { theme: 'light' } as any;
-            let a: any;
-            let b: any;
-            const A: React.FC = () => {
-                a = useLayout();
+        test('Toggle mobile search', () => {
+            let received: ReturnType<typeof useLayout> | undefined;
+
+            const Comp: React.FC = () => {
+                received = useLayout();
                 return null;
             };
-            const B: React.FC = () => {
-                b = useLayout();
-                return null;
-            };
+
             render(
-                <LayoutContext.Provider value={provided}>
-                    <A />
-                    <B />
-                </LayoutContext.Provider>
+                <LayoutProvider>
+                    <Comp />
+                </LayoutProvider>
             );
-            expect(a).toBe(provided);
-            expect(b).toBe(provided);
+
+            act(() => received?.toggleMobileSearch());
+            expect(received?.visibleMobileSearch).toBe(true);
+
+            act(() => received?.toggleMobileSearch());
+            expect(received?.visibleMobileSearch).toBe(false);
         });
     });
 });
