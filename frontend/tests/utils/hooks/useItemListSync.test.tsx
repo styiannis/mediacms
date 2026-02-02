@@ -1,21 +1,31 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 
-// Mock translateString helper
+jest.mock('../../../src/static/js/utils/settings/config', () => ({
+    config: jest.fn(() => jest.requireActual('../../tests-constants').sampleMediaCMSConfig),
+}));
+
+jest.mock('../../../src/static/js/utils/classes/', () => ({
+    BrowserCache: jest.fn().mockImplementation(() => ({
+        get: jest.fn(),
+        set: jest.fn(),
+    })),
+}));
+
 jest.mock('../../../src/static/js/utils/helpers/', () => ({
     translateString: (s: string) => s,
 }));
 
 // Capture the listHandler passed from the hook to simulate behaviors
 let mockListHandler: any;
-let mockOnItemsLoad: any = jest.fn();
-let mockOnItemsCount: any = jest.fn();
-let addListItemsSpy: any = jest.fn();
+
+let mockOnItemsLoad = jest.fn();
+let mockOnItemsCount = jest.fn();
+let addListItemsSpy = jest.fn();
 
 // Mock useItemList to control items, counts, and listHandler
 jest.mock('../../../src/static/js/utils/hooks/useItemList', () => ({
     useItemList: (props: any, _ref: any) => {
-        // provide a stable listHandler with controllable methods
         mockListHandler = {
             loadItems: jest.fn(),
             totalPages: jest.fn().mockReturnValue(props.__totalPages ?? 1),
@@ -36,34 +46,35 @@ jest.mock('../../../src/static/js/utils/hooks/useItemList', () => ({
 import { useItemListSync } from '../../../src/static/js/utils/hooks/useItemListSync';
 
 function HookConsumer(props: any) {
-    const tuple = useItemListSync(props) as any[];
+    const tuple = useItemListSync(props);
+
     const [
-        countedItems,
-        items,
-        listHandler,
+        _countedItems,
+        _items,
+        _listHandler,
         _setListHandler,
         classname,
-        itemsListWrapperRef,
-        itemsListRef,
-        onItemsCount,
-        onItemsLoad,
+        _itemsListWrapperRef,
+        _itemsListRef,
+        _onItemsCount,
+        _onItemsLoad,
         renderBeforeListWrap,
         renderAfterListWrap,
     ] = tuple as any;
 
     return (
         <div>
-            <div data-testid="counted">{String(countedItems)}</div>
-            <div data-testid="items">{Array.isArray(items) ? items.length : 0}</div>
+            {/* <div data-testid="counted">{String(countedItems)}</div> */}
+            {/* <div data-testid="items">{Array.isArray(items) ? items.length : 0}</div> */}
             <div data-testid="class-list">{classname.list}</div>
             <div data-testid="class-outer">{classname.listOuter}</div>
-            <div data-testid="has-handler">{listHandler ? 'yes' : 'no'}</div>
-            <div data-testid="wrapper-ref">{itemsListWrapperRef.current ? 'set' : 'unset'}</div>
-            <div data-testid="list-ref">{itemsListRef.current ? 'set' : 'unset'}</div>
+            {/* <div data-testid="has-handler">{listHandler ? 'yes' : 'no'}</div> */}
+            {/* <div data-testid="wrapper-ref">{itemsListWrapperRef.current ? 'set' : 'unset'}</div> */}
+            {/* <div data-testid="list-ref">{itemsListRef.current ? 'set' : 'unset'}</div> */}
             <div data-testid="render-before">{renderBeforeListWrap()}</div>
             <div data-testid="render-after">{renderAfterListWrap()}</div>
-            <button data-testid="call-on-load" onClick={() => onItemsLoad([])} />
-            <button data-testid="call-on-count" onClick={() => onItemsCount(0)} />
+            {/* <button data-testid="call-on-load" onClick={() => onItemsLoad([])} /> */}
+            {/* <button data-testid="call-on-count" onClick={() => onItemsCount(0)} /> */}
         </div>
     );
 }
@@ -76,48 +87,49 @@ describe('utils/hooks', () => {
             addListItemsSpy = jest.fn();
         });
 
-        test('computes classname.listOuter with optional className prop', () => {
-            const { getByTestId, rerender } = render((<HookConsumer className=" extra  " />) as any);
-            expect(getByTestId('class-outer').textContent).toBe('items-list-outer extra');
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
 
-            rerender((<HookConsumer />) as any);
+        test('Computes classname.listOuter with optional className prop', () => {
+            const { getByTestId, rerender } = render(<HookConsumer className=" extra  " />);
+            expect(getByTestId('class-outer').textContent).toBe('items-list-outer extra');
+            expect(getByTestId('class-list').textContent).toBe('items-list');
+            rerender(<HookConsumer />);
             expect(getByTestId('class-outer').textContent).toBe('items-list-outer');
             expect(getByTestId('class-list').textContent).toBe('items-list');
         });
 
-        test('renders SHOW MORE button when more pages exist and not loaded all', () => {
+        test('Renders SHOW MORE button when more pages exist and not loaded all', () => {
             const { getByTestId, container } = render(
-                (<HookConsumer __items={[1]} __countedItems={1} __totalPages={3} __loadedAll={false} />) as any
+                <HookConsumer __items={[1]} __countedItems={1} __totalPages={3} __loadedAll={false} />
             );
-            const after = getByTestId('render-after');
-            const btn = after.querySelector('button.load-more') as HTMLButtonElement;
+            const btn = getByTestId('render-after').querySelector('button.load-more') as HTMLButtonElement;
             expect(btn).toBeTruthy();
             expect(btn.textContent).toBe('SHOW MORE');
-
             fireEvent.click(btn);
             expect(mockListHandler.loadItems).toHaveBeenCalledTimes(1);
-            expect(container).toBeTruthy();
         });
 
-        test('hides SHOW MORE when totalPages <= 1', () => {
+        test('Hides SHOW MORE when totalPages <= 1', () => {
             const { getByTestId } = render(
                 // With totalPages=1 the hook should not render the button regardless of loadedAll
-                (<HookConsumer __items={[1, 2]} __countedItems={2} __totalPages={1} __loadedAll={true} />) as any
+                <HookConsumer __items={[1, 2]} __countedItems={2} __totalPages={1} __loadedAll={true} />
             );
             expect(getByTestId('render-after').textContent).toBe('');
         });
 
-        test('hides SHOW MORE when loadedAllItems is true', () => {
+        test('Hides SHOW MORE when loadedAllItems is true', () => {
             const { getByTestId } = render(
-                (<HookConsumer __items={[1, 2, 3]} __countedItems={3} __totalPages={5} __loadedAll={true} />) as any
+                <HookConsumer __items={[1, 2, 3]} __countedItems={3} __totalPages={5} __loadedAll={true} />
             );
             expect(getByTestId('render-after').textContent).toBe('');
         });
 
-        test('invokes addListItems and afterItemsLoad when items change', () => {
-            const { rerender } = render((<HookConsumer __items={[]} />) as any);
+        test('Invokes addListItems and afterItemsLoad when items change', () => {
+            const { rerender } = render(<HookConsumer __items={[]} />);
             expect(addListItemsSpy).toHaveBeenCalledTimes(1);
-            rerender((<HookConsumer __items={[1]} />) as any);
+            rerender(<HookConsumer __items={[1]} />);
             // useEffect runs again due to items change
             expect(addListItemsSpy).toHaveBeenCalledTimes(2);
         });
