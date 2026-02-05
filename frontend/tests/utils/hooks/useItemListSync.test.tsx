@@ -16,9 +16,7 @@ jest.mock('../../../src/static/js/utils/helpers/', () => ({
     translateString: (s: string) => s,
 }));
 
-// Capture the listHandler passed from the hook to simulate behaviors
 let mockListHandler: any;
-
 let mockOnItemsLoad = jest.fn();
 let mockOnItemsCount = jest.fn();
 let addListItemsSpy = jest.fn();
