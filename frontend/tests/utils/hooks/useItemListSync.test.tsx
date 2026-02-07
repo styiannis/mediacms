@@ -89,47 +89,68 @@ describe('utils/hooks', () => {
             jest.clearAllMocks();
         });
 
-        test('Computes classname.listOuter with optional className prop', () => {
-            const { getByTestId, rerender } = render(<HookConsumer className=" extra  " />);
-            expect(getByTestId('class-outer').textContent).toBe('items-list-outer extra');
-            expect(getByTestId('class-list').textContent).toBe('items-list');
-            rerender(<HookConsumer />);
-            expect(getByTestId('class-outer').textContent).toBe('items-list-outer');
-            expect(getByTestId('class-list').textContent).toBe('items-list');
+        describe('Classname Management', () => {
+            test('Computes classname.listOuter with optional className prop', () => {
+                const { getByTestId, rerender } = render(<HookConsumer className=" extra  " />);
+                expect(getByTestId('class-outer').textContent).toBe('items-list-outer extra');
+                expect(getByTestId('class-list').textContent).toBe('items-list');
+                rerender(<HookConsumer />);
+                expect(getByTestId('class-outer').textContent).toBe('items-list-outer');
+                expect(getByTestId('class-list').textContent).toBe('items-list');
+            });
         });
 
-        test('Renders SHOW MORE button when more pages exist and not loaded all', () => {
-            const { getByTestId, container } = render(
-                <HookConsumer __items={[1]} __countedItems={1} __totalPages={3} __loadedAll={false} />
-            );
-            const btn = getByTestId('render-after').querySelector('button.load-more') as HTMLButtonElement;
-            expect(btn).toBeTruthy();
-            expect(btn.textContent).toBe('SHOW MORE');
-            fireEvent.click(btn);
-            expect(mockListHandler.loadItems).toHaveBeenCalledTimes(1);
+        describe('Items Management', () => {
+            test('Invokes addListItems and afterItemsLoad when items change', () => {
+                const { rerender } = render(<HookConsumer __items={[]} />);
+                expect(addListItemsSpy).toHaveBeenCalledTimes(1);
+                rerender(<HookConsumer __items={[1]} />);
+                // useEffect runs again due to items change
+                expect(addListItemsSpy).toHaveBeenCalledTimes(2);
+            });
         });
 
-        test('Hides SHOW MORE when totalPages <= 1', () => {
-            const { getByTestId } = render(
-                // With totalPages=1 the hook should not render the button regardless of loadedAll
-                <HookConsumer __items={[1, 2]} __countedItems={2} __totalPages={1} __loadedAll={true} />
-            );
-            expect(getByTestId('render-after').textContent).toBe('');
-        });
+        describe('Load More Button Rendering', () => {
+            test('Renders SHOW MORE button when more pages exist and not loaded all', () => {
+                const { getByTestId } = render(
+                    <HookConsumer __items={[1]} __countedItems={1} __totalPages={3} __loadedAll={false} />
+                );
+                const btn = getByTestId('render-after').querySelector('button.load-more') as HTMLButtonElement;
+                expect(btn).toBeTruthy();
+                expect(btn.textContent).toBe('SHOW MORE');
+                fireEvent.click(btn);
+                expect(mockListHandler.loadItems).toHaveBeenCalledTimes(1);
+            });
 
-        test('Hides SHOW MORE when loadedAllItems is true', () => {
-            const { getByTestId } = render(
-                <HookConsumer __items={[1, 2, 3]} __countedItems={3} __totalPages={5} __loadedAll={true} />
-            );
-            expect(getByTestId('render-after').textContent).toBe('');
-        });
+            test('Hides SHOW MORE when totalPages <= 1', () => {
+                const { getByTestId } = render(
+                    // With totalPages=1 the hook should not render the button regardless of loadedAll
+                    <HookConsumer __items={[1, 2]} __countedItems={2} __totalPages={1} __loadedAll={true} />
+                );
+                expect(getByTestId('render-after').textContent).toBe('');
+            });
 
-        test('Invokes addListItems and afterItemsLoad when items change', () => {
-            const { rerender } = render(<HookConsumer __items={[]} />);
-            expect(addListItemsSpy).toHaveBeenCalledTimes(1);
-            rerender(<HookConsumer __items={[1]} />);
-            // useEffect runs again due to items change
-            expect(addListItemsSpy).toHaveBeenCalledTimes(2);
+            test('Hides SHOW MORE when loadedAllItems is true', () => {
+                const { getByTestId } = render(
+                    <HookConsumer __items={[1, 2, 3]} __countedItems={3} __totalPages={5} __loadedAll={true} />
+                );
+                expect(getByTestId('render-after').textContent).toBe('');
+            });
+
+            test('Shows SHOW MORE when loadedAllItems is false even with totalPages > 1', () => {
+                const { getByTestId } = render(
+                    <HookConsumer __items={[1, 2]} __countedItems={2} __totalPages={2} __loadedAll={false} />
+                );
+                const btn = getByTestId('render-after').querySelector('button.load-more');
+                expect(btn).toBeTruthy();
+            });
+
+            test('Returns null from renderBeforeListWrap', () => {
+                const { getByTestId } = render(
+                    <HookConsumer __items={[1]} __countedItems={1} __totalPages={3} __loadedAll={false} />
+                );
+                expect(getByTestId('render-before').textContent).toBe('');
+            });
         });
     });
 });
