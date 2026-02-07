@@ -1,18 +1,21 @@
-import { init, settings } from '../../../src/static/js/utils/settings/sidebar';
+import { sidebarConfig } from '../../../src/static/js/utils/settings/sidebar';
 
-const sidebarConfig = (sett?: any) => {
-    init(sett);
-    return settings();
-};
+// Tests for sidebarConfig following conventions in utils-settings suite
+// Behaviors:
+// 1) Defaults to all links visible when no settings are provided
+// 2) Hides only those explicitly set to true
+// 3) Treats non-true values (false/undefined/null/other types) as false
+// 4) Is resilient to partial inputs and extra properties
+// 5) Is pure (does not mutate inputs)
 
 describe('utils/settings', () => {
     describe('sidebar', () => {
-        test('Defaults to all links visible when no settings provided', () => {
+        test('defaults to all links visible when no settings provided', () => {
             const cfg = sidebarConfig();
             expect(cfg).toStrictEqual({ hideHomeLink: false, hideTagsLink: false, hideCategoriesLink: false });
         });
 
-        test('Hides only those explicitly set to true', () => {
+        test('hides only those explicitly set to true', () => {
             const cfg1 = sidebarConfig({ hideHomeLink: true });
             expect(cfg1).toStrictEqual({ hideHomeLink: true, hideTagsLink: false, hideCategoriesLink: false });
 
@@ -26,24 +29,24 @@ describe('utils/settings', () => {
             expect(cfgAll).toStrictEqual({ hideHomeLink: true, hideTagsLink: true, hideCategoriesLink: true });
         });
 
-        test('Treats non-true values as false', () => {
+        test('treats non-true values as false', () => {
             // false
             expect(sidebarConfig({ hideHomeLink: false }).hideHomeLink).toBe(false);
             // undefined
             expect(sidebarConfig({}).hideHomeLink).toBe(false);
             // null
-            expect(sidebarConfig({ hideTagsLink: null }).hideTagsLink).toBe(false);
+            expect(sidebarConfig({ hideTagsLink: null as any }).hideTagsLink).toBe(false);
             // other types
-            expect(sidebarConfig({ hideCategoriesLink: 'yes' }).hideCategoriesLink).toBe(false);
-            expect(sidebarConfig({ hideCategoriesLink: 1 }).hideCategoriesLink).toBe(false);
+            expect(sidebarConfig({ hideCategoriesLink: 'yes' as any }).hideCategoriesLink).toBe(false);
+            expect(sidebarConfig({ hideCategoriesLink: 1 as any }).hideCategoriesLink).toBe(false);
         });
 
-        test('Is resilient to partial inputs and ignores extra properties', () => {
-            const cfg = sidebarConfig({ hideTagsLink: true, extra: 'prop' });
+        test('is resilient to partial inputs and ignores extra properties', () => {
+            const cfg = sidebarConfig({ hideTagsLink: true, extra: 'prop' } as any);
             expect(cfg).toStrictEqual({ hideHomeLink: false, hideTagsLink: true, hideCategoriesLink: false });
         });
 
-        test('Does not mutate input object', () => {
+        test('does not mutate input object', () => {
             const input: any = { hideHomeLink: true };
             const copy = JSON.parse(JSON.stringify(input));
             sidebarConfig(input);

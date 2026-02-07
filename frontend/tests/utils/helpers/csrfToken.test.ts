@@ -1,55 +1,67 @@
-import { csrfToken } from '../../../src/static/js/utils/helpers/csrfToken';
+import { csrfToken } from '../../../src/static/js/utils/helpers';
 
-const setupDocumentCookie = () => {
-    if (typeof document === 'undefined') {
-        globalThis.document = { cookie: '' } as unknown as Document;
-    }
-};
+// Ensure a document/window environment for cookie-based tests
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+if (typeof document === 'undefined') {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    global.document = { cookie: '' } as unknown as Document;
+}
 
-const setDocumentCookie = (value: string) => {
-    if (typeof document !== 'undefined') {
-        Object.defineProperty(document, 'cookie', { value, writable: true, configurable: true });
-    }
-};
-
-describe('js/utils/helpers', () => {
+describe('utils/helpers', () => {
     describe('csrfToken', () => {
         const originalCookie = document.cookie;
 
-        beforeAll(() => {
-            // Initialize document environment
-            setupDocumentCookie();
-        });
-
         afterEach(() => {
-            // Restore original cookie string
-            setDocumentCookie(originalCookie);
+            // restore original cookie string
+            Object.defineProperty(document, 'cookie', {
+                value: originalCookie,
+                writable: true,
+                configurable: true,
+            });
         });
 
-        test('Returns null when document.cookie is empty', () => {
-            setDocumentCookie('');
+        test('returns null when document.cookie is empty', () => {
+            Object.defineProperty(document, 'cookie', { value: '', writable: true, configurable: true });
             expect(csrfToken()).toBeNull();
         });
 
-        test('Returns null when csrftoken is not present', () => {
-            setDocumentCookie('sessionid=abc; theme=dark');
+        test('returns null when csrftoken is not present', () => {
+            Object.defineProperty(document, 'cookie', {
+                value: 'sessionid=abc; theme=dark',
+                writable: true,
+                configurable: true,
+            });
             expect(csrfToken()).toBeNull();
         });
 
-        test('Finds and decodes the csrftoken cookie value', () => {
+        test('finds and decodes the csrftoken cookie value', () => {
             const token = encodeURIComponent('a b+c%20');
-            setDocumentCookie(`sessionid=abc; csrftoken=${token}; theme=dark`);
+            Object.defineProperty(document, 'cookie', {
+                value: `sessionid=abc; csrftoken=${token}; theme=dark`,
+                writable: true,
+                configurable: true,
+            });
             expect(csrfToken()).toBe('a b+c%20');
         });
 
-        test('Ignores leading spaces and matches exact prefix csrftoken=', () => {
-            setDocumentCookie('  sessionid=xyz;   csrftoken=secure123; other=value');
+        test('ignores leading spaces and matches exact prefix csrftoken=', () => {
+            Object.defineProperty(document, 'cookie', {
+                value: '  sessionid=xyz;   csrftoken=secure123; other=value',
+                writable: true,
+                configurable: true,
+            });
             expect(csrfToken()).toBe('secure123');
         });
 
-        test('Stops scanning once csrftoken is found', () => {
+        test('stops scanning once csrftoken is found', () => {
             // Ensure csrftoken occurs before other long tail cookies
-            setDocumentCookie('csrftoken=first; a=1; b=2; c=3; d=4; e=5');
+            Object.defineProperty(document, 'cookie', {
+                value: 'csrftoken=first; a=1; b=2; c=3; d=4; e=5',
+                writable: true,
+                configurable: true,
+            });
             expect(csrfToken()).toBe('first');
         });
     });

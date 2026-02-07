@@ -1,13 +1,16 @@
-import { init, settings } from '../../../src/static/js/utils/settings/site';
+import { siteConfig } from '../../../src/static/js/utils/settings/site';
 
-const siteConfig = (sett?: any) => {
-    init(sett);
-    return settings();
-};
+// Tests for siteConfig following conventions in utils-settings suite
+// Behaviors:
+// 1) Applies defaults when no settings provided
+// 2) Trims string fields: id, url, api, title, version
+// 3) Handles useRoundedCorners: defaults to true unless explicitly false
+// 4) Resilient to partial inputs and ignores extra properties
+// 5) Does not mutate input object
 
 describe('utils/settings', () => {
     describe('site', () => {
-        test('Applies defaults when no settings provided', () => {
+        test('applies defaults when no settings provided', () => {
             const cfg = siteConfig();
             expect(cfg).toStrictEqual({
                 id: 'media-cms',
@@ -19,45 +22,45 @@ describe('utils/settings', () => {
             });
         });
 
-        test('Trims string fields (id, url, api, title, version)', () => {
+        test('trims string fields (id, url, api, title, version)', () => {
             const cfg = siteConfig({
                 id: ' my-site ',
                 url: ' https://example.com/ ',
                 api: ' https://example.com/api/ ',
                 title: ' Media CMS ',
                 version: ' 2.3.4 ',
-            });
-            expect(cfg).toStrictEqual({
-                id: 'my-site',
-                url: 'https://example.com/',
-                api: 'https://example.com/api/',
-                title: 'Media CMS',
-                useRoundedCorners: true,
-                version: '2.3.4',
-            });
+            } as any);
+
+            expect(cfg.id).toBe('my-site');
+            expect(cfg.url).toBe('https://example.com/');
+            expect(cfg.api).toBe('https://example.com/api/');
+            expect(cfg.title).toBe('Media CMS');
+            expect(cfg.version).toBe('2.3.4');
         });
 
-        test('Handles useRoundedCorners: defaults to true unless explicitly false', () => {
+        test('handles useRoundedCorners: defaults to true unless explicitly false', () => {
             expect(siteConfig({}).useRoundedCorners).toBe(true);
             expect(siteConfig({ useRoundedCorners: true }).useRoundedCorners).toBe(true);
             expect(siteConfig({ useRoundedCorners: false }).useRoundedCorners).toBe(false);
             // non-boolean should still evaluate to default true because only === false toggles it off
-            expect(siteConfig({ useRoundedCorners: 'no' }).useRoundedCorners).toBe(true);
-            expect(siteConfig({ useRoundedCorners: 0 }).useRoundedCorners).toBe(true);
-            expect(siteConfig({ useRoundedCorners: null }).useRoundedCorners).toBe(true);
+            expect(siteConfig({ useRoundedCorners: 'no' as any }).useRoundedCorners).toBe(true);
+            expect(siteConfig({ useRoundedCorners: 0 as any }).useRoundedCorners).toBe(true);
+            expect(siteConfig({ useRoundedCorners: null as any }).useRoundedCorners).toBe(true);
         });
 
-        test('Is resilient to partial inputs and ignores extra properties', () => {
-            const cfg = siteConfig({ id: ' x ', extra: 'y' });
+        test('is resilient to partial inputs and ignores extra properties', () => {
+            const cfg = siteConfig({ id: ' x ', extra: 'y' } as any);
             expect(cfg).toMatchObject({ id: 'x' });
-            expect(Object.keys(cfg).sort()).toEqual(['api', 'id', 'title', 'url', 'useRoundedCorners', 'version']);
+            expect(Object.keys(cfg).sort()).toStrictEqual(
+                ['api', 'id', 'title', 'url', 'useRoundedCorners', 'version'].sort()
+            );
         });
 
-        test('Does not mutate input object', () => {
-            const input = { id: ' my-id ', useRoundedCorners: false };
+        test('does not mutate input object', () => {
+            const input: any = { id: ' my-id ', useRoundedCorners: false };
             const copy = JSON.parse(JSON.stringify(input));
             siteConfig(input);
-            expect(input).toEqual(copy);
+            expect(input).toStrictEqual(copy);
         });
     });
 });
